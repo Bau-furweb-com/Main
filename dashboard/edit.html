@@ -219,7 +219,7 @@
         }
         
         iframe.contentWindow.postMessage({
-          type: 'KOLLEKTIV_TOGGLE_EDIT_MODE',
+          type: 'Bau.FurWeb_TOGGLE_EDIT_MODE',
           payload: { enabled: isEditing }
         }, '*');
       });
@@ -234,7 +234,7 @@
           script.src = '/js/edit-mode.js';
           
           const meta = frameDoc.createElement('meta');
-          meta.name = 'kollektiv-user-id';
+          meta.name = 'Bau.FurWeb-user-id';
           meta.content = user.id;
           frameDoc.head.appendChild(meta);
           
@@ -242,7 +242,7 @@
           
           // Sync toggle state
           iframe.contentWindow.postMessage({
-            type: 'KOLLEKTIV_TOGGLE_EDIT_MODE',
+            type: 'Bau.FurWeb_TOGGLE_EDIT_MODE',
             payload: { enabled: isEditing }
           }, '*');
         } catch (e) {
@@ -323,7 +323,7 @@
           alert('Anfrage konnte nicht gespeichert werden. ' + error.message);
         } else {
           iframe.contentWindow.postMessage({
-            type: 'KOLLEKTIV_LOCAL_OVERLAY_SYNC',
+            type: 'Bau.FurWeb_LOCAL_OVERLAY_SYNC',
             payload: {
               selector: currentRequestPayload.selector,
               status: 'Requested',
@@ -339,7 +339,7 @@
       });
 
       window.addEventListener('message', async (event) => {
-        if (event.data && event.data.type === 'KOLLEKTIV_SUBMIT_REQUEST') {
+        if (event.data && event.data.type === 'Bau.FurWeb_SUBMIT_REQUEST') {
           const payload = event.data.payload;
           
           let imageUrl = null;
@@ -373,7 +373,7 @@
           } else {
             // Echo back to phase 2
             iframe.contentWindow.postMessage({
-              type: 'KOLLEKTIV_LOCAL_OVERLAY_SYNC',
+              type: 'Bau.FurWeb_LOCAL_OVERLAY_SYNC',
               payload: {
                 selector: payload.selector,
                 status: 'Requested',

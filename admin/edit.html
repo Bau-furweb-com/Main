@@ -210,7 +210,7 @@
            setTimeout(() => {
                try {
                   iframe.contentWindow.postMessage({
-                    type: 'KOLLEKTIV_HIGHLIGHT_ELEMENT',
+                    type: 'Bau.FurWeb_HIGHLIGHT_ELEMENT',
                     payload: { selector: elementSelector }
                   }, '*');
                } catch(err) {}
@@ -225,7 +225,7 @@
           
           // Disable edit mode by default inside the iframe for admin
           const configScript = frameDoc.createElement('script');
-          configScript.textContent = 'window.__kollektivAdminDisableEdit = true;';
+          configScript.textContent = 'window.__Bau.FurWebAdminDisableEdit = true;';
           frameDoc.head.appendChild(configScript);
 
           const script = frameDoc.createElement('script');
@@ -299,7 +299,7 @@
              alert('Fehlgeschlagen. ' + error.message);
            } else {
              iframe.contentWindow.postMessage({
-               type: 'KOLLEKTIV_LOCAL_OVERLAY_SYNC',
+               type: 'Bau.FurWeb_LOCAL_OVERLAY_SYNC',
                payload: {
                  selector: currentRequestPayload.selector,
                  status: 'Done',
@@ -314,7 +314,7 @@
       });
 
       window.addEventListener('message', async (event) => {
-        if (event.data && event.data.type === 'KOLLEKTIV_ELEMENT_CLICKED') {
+        if (event.data && event.data.type === 'Bau.FurWeb_ELEMENT_CLICKED') {
           const payload = event.data.payload;
           currentRequestPayload = payload;
           
@@ -323,7 +323,7 @@
           modalRequestText.focus();
           checkSubmitState();
 
-        } else if (event.data && event.data.type === 'KOLLEKTIV_SUBMIT_REQUEST') {
+        } else if (event.data && event.data.type === 'Bau.FurWeb_SUBMIT_REQUEST') {
           const payload = event.data.payload;
           const { data: profile } = await supabase.from('profiles').select('id').eq('site_url', siteFolder).maybeSingle();
           if (profile) {
@@ -338,7 +338,7 @@
 
             if (!error) {
               iframe.contentWindow.postMessage({
-                type: 'KOLLEKTIV_LOCAL_OVERLAY_SYNC',
+                type: 'Bau.FurWeb_LOCAL_OVERLAY_SYNC',
                 payload: {
                   selector: payload.selector,
                   status: 'Done',

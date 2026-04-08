@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Visual Editor | Kollektiv</title>
+  <link href="../css/output.css" rel="stylesheet">
+
+  <script type="module">import "https://cdn.jsdelivr.net/npm/@hotwired/turbo/+esm";</script>
+  <style>::-webkit-scrollbar { display: none; } * { scrollbar-width: none; -ms-overflow-style: none; }</style>
+</head>
+<body class="bg-gray-50 text-slate-900 font-sans h-screen flex flex-col overflow-hidden" style="margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+
+  <!-- Header -->
+    <!-- Unified Browser Toolbar -->
+  <header class="bg-indigo-50 border-b border-indigo-200 px-6 py-3 flex items-center justify-between shadow-sm z-10 flex-shrink-0 transition-opacity">
+    <div class="flex items-center gap-4">
+      <a href="/admin/index.html" class="text-indigo-600 hover:text-indigo-900 transition flex items-center gap-1 text-sm font-medium mr-2" title="Zurueck zum Dashboard">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      </a>
+      
+      <!-- History Nav -->
+      <div class="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-indigo-200 shadow-sm">
+        <button id="backBtn" class="text-indigo-500 hover:text-indigo-900 p-1.5 rounded hover:bg-indigo-50 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button id="forwardBtn" class="text-indigo-500 hover:text-indigo-900 p-1.5 rounded hover:bg-indigo-50 transition">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Wide Simple URL Bar (The "Banner" Equivalent) -->
+    <div class="flex-1 max-w-7xl mx-auto mx-6">
+      <div class="flex items-center bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden focus-within:ring-4 focus-within:ring-indigo-100 focus-within:border-indigo-400 transition-all h-12 relative">
+        <div class="absolute left-3 text-indigo-400 pointer-events-none">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+        </div>
+        <input type="text" id="pathInput" placeholder="Domain wird geladen..." class="w-full bg-transparent border-none focus:outline-none text-base font-medium py-2 pl-10 pr-12 text-slate-800 h-full" value="/">
+        <button id="goBtn" class="absolute right-2 text-indigo-400 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg p-1.5 transition bg-transparent h-8 flex items-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mode Toggle Button (Removed) -->
+    <div class="flex items-center gap-3">
+    </div>
+  </header>
+
+  
+
+  <!-- Iframe Container -->
+  <main class="bg-slate-200 w-full relative flex-1 overflow-y-auto" style="flex: 1 1 auto; position: relative; overflow: hidden;">
+    <!-- Notice: For local dev, this would load the client's site. Assuming we pass client_url via an API or have a mock one -->
+    <iframe id="clientSiteFrame" src="about:blank" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: block;" class="w-full h-full border-none shadow-inner bg-white"></iframe>
+
+    <div id="loader" class="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 50;">
+      <div class="text-slate-500 font-medium animate-pulse">Wird sicher geladen...</div>
+    </div>
+
+    <!-- Floating Request Outline Modal -->
+    <div id="requestModal" class="hidden absolute z-[100]" style="display: none; position: absolute; flex-direction: column; width: 320px; border-radius: 0.5rem; background: white; border: 2px dashed #4f46e5; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden;">
+      <div class="px-4 py-3 bg-indigo-50 border-b border-indigo-100 flex justify-between items-start">
+        <div class="flex-1 min-w-0 pr-2">
+          <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block mb-0.5">Aenderung anfragen</span>
+          <div class="text-xs text-slate-600 truncate bg-white/50 px-1 py-0.5 rounded font-mono" id="modalOriginalContext"></div>
+        </div>
+        <button id="closeModalBtn" class="text-indigo-400 hover:text-indigo-800 p-1 hover:bg-indigo-100 rounded transition flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="p-4 space-y-3">
+        <textarea id="modalRequestText" rows="3" class="w-full border border-slate-200 bg-slate-50 focus:bg-white rounded-md text-sm p-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none transition shadow-inner" placeholder="Z. B. aendere 'Kontakt' zu 'Melde dich bei uns'"></textarea>
+
+        <div class="flex items-center justify-between">
+          <label class="cursor-pointer flex-1 flex items-center justify-center py-2 px-3 border border-slate-200 rounded text-xs font-medium text-slate-600 hover:bg-slate-50 transition bg-white shadow-sm">
+            <svg class="w-4 h-4 mr-1.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            Bild anhaengen
+            <input type="file" id="modalImageUpload" accept="image/*" class="hidden">
+          </label>
+        </div>
+        <div id="uploadStatus" class="text-xs text-indigo-600 font-medium hidden text-center"></div>
+
+        <button id="submitRequestBtn" class="w-full py-2 bg-indigo-600 text-white rounded font-medium text-sm hover:bg-indigo-700 transition shadow-sm">Anfrage speichern</button>
+      </div>
+    </div>
+  </main>
+
+  
+  <script type="module">
+    import { supabase, requireAuth } from '../js/supabase.js';
+
+    async function initEditor() {
+      const session = await requireAuth();
+      if (!session) return;
+      
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .maybeSingle();
+
+      if (error || profile?.role !== 'admin') {
+        alert("Nicht berechtigt. Kein Admin.");
+        window.location.href = '/dashboard/index.html';
+        return;
+      }
+        
+      const iframe = document.getElementById('clientSiteFrame');
+      const loader = document.getElementById('loader');
+      const pathInput = document.getElementById('pathInput');
+      const goBtn = document.getElementById('goBtn');
+      const backBtn = document.getElementById('backBtn');
+      const forwardBtn = document.getElementById('forwardBtn');
+
+      // Parsing Hash: #/{site_folder}/{page_path}?element={...}
+      let siteFolder = '';
+      let pagePath = '/index.html';
+      let elementSelector = '';
+
+      function parseHash() {
+        const hash = window.location.hash.substring(1); // remove #
+        if (!hash) return false;
+        
+        const [pathPart, queryPart] = hash.split('?');
+        const pathSegments = pathPart.split('/').filter(Boolean);
+        
+        if (pathSegments.length > 0) {
+          siteFolder = pathSegments[0];
+          pagePath = '/' + pathSegments.slice(1).join('/');
+          if (pagePath === '/') pagePath = '/index.html';
+        }
+        
+        if (queryPart) {
+          const urlParams = new URLSearchParams(queryPart);
+          elementSelector = urlParams.get('element') || '';
+        }
+        
+        return true;
+      }
+
+      if (!parseHash()) {
+          const p = prompt("Enter Site Folder (e.g. minimalist-cafe):");
+          if (p) {
+              siteFolder = p;
+              window.location.hash = `#/${siteFolder}/index.html`;
+              parseHash();
+          }
+      }
+
+      // Always populate URL input
+      pathInput.value = pagePath;
+
+      let historyStack = [];
+      let historyIndex = -1;
+
+      function updateHistory(path) {
+        if (historyIndex === -1 || historyStack[historyIndex] !== path) {
+          historyStack = historyStack.slice(0, historyIndex + 1);
+          historyStack.push(path);
+          historyIndex++;
+        }
+        
+        let newHash = `#/${siteFolder}${path}`;
+        if (elementSelector && historyIndex === 0) {
+            newHash += `?element=${encodeURIComponent(elementSelector)}`;
+        }
+        window.location.hash = newHash;
+      }
+
+      backBtn.addEventListener('click', () => {
+        if (historyIndex > 0) {
+          historyIndex--;
+          pathInput.value = historyStack[historyIndex];
+          window.location.hash = `#/${siteFolder}${historyStack[historyIndex]}`;
+          loadUrl(false);
+        }
+      });
+
+      forwardBtn.addEventListener('click', () => {
+        if (historyIndex < historyStack.length - 1) {
+          historyIndex++;
+          pathInput.value = historyStack[historyIndex];
+          window.location.hash = `#/${siteFolder}${historyStack[historyIndex]}`;
+          loadUrl(false);
+        }
+      });
+
+      function loadUrl(pushState = true) {
+        loader.style.display = 'flex';
+        let val = pathInput.value.trim();
+        if (!val.startsWith('/')) val = '/' + val;
+        if (!val.endsWith('.html') && !val.includes('=')) val += '.html';
+        
+        iframe.src = `/sites/${siteFolder}${val}`;
+        
+        if (pushState) {
+          updateHistory(val);
+        }
+      }
+
+      pathInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loadUrl();
+      });
+      goBtn.addEventListener('click', () => loadUrl());
+
+      function highlightTargetElement() {
+        if (elementSelector) {
+           setTimeout(() => {
+               try {
+                  iframe.contentWindow.postMessage({
+                    type: 'KOLLEKTIV_HIGHLIGHT_ELEMENT',
+                    payload: { selector: elementSelector }
+                  }, '*');
+               } catch(err) {}
+           }, 1000);
+        }
+      }
+
+      iframe.onload = () => {
+        loader.style.display = 'none';
+        try {
+          const frameDoc = iframe.contentDocument || iframe.contentWindow.document;
+          
+          // Disable edit mode by default inside the iframe for admin
+          const configScript = frameDoc.createElement('script');
+          configScript.textContent = 'window.__kollektivAdminDisableEdit = true;';
+          frameDoc.head.appendChild(configScript);
+
+          const script = frameDoc.createElement('script');
+          script.type = 'module';
+          script.src = '/js/edit-mode.js';
+          frameDoc.body.appendChild(script);
+
+          if (elementSelector) {
+             highlightTargetElement();
+          }
+        } catch (e) {
+          console.warn("Cross-origin iframe detected.", e);
+        }
+      };
+
+      const modal = document.getElementById('requestModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const submitRequestBtn = document.getElementById('submitRequestBtn');
+      const modalElementPath = document.getElementById('modalElementPath');
+      const modalRequestText = document.getElementById('modalRequestText');
+      const attachedImagePreview = document.getElementById('attachedImagePreview');
+      
+      let currentRequestPayload = null;
+
+      function checkSubmitState() {
+          const val = modalRequestText.value.trim();
+          if (val.length > 0 || attachedImagePreview.classList.contains('block')) {
+             submitRequestBtn.disabled = false;
+             submitRequestBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          } else {
+             submitRequestBtn.disabled = true;
+             submitRequestBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          }
+      }
+      modalRequestText.addEventListener('input', checkSubmitState);
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        modalRequestText.value = '';
+        attachedImagePreview.src = '';
+        attachedImagePreview.classList.add('hidden', 'opacity-0', 'scale-95');
+        attachedImagePreview.classList.remove('block');
+        currentRequestPayload = null;
+        checkSubmitState();
+      }
+
+      closeModalBtn.addEventListener('click', closeModal);
+
+      submitRequestBtn.addEventListener('click', async () => {
+        if (!currentRequestPayload) return;
+        
+        submitRequestBtn.innerHTML = '<svg class="animate-spin w-4 h-4 text-white mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+        submitRequestBtn.disabled = true;
+
+        let imageUrl = null;
+
+        const { data: profile } = await supabase.from('profiles').select('id').eq('site_url', siteFolder).maybeSingle();
+        const newText = modalRequestText.value.trim();
+
+        if (profile) {
+           const { data: newRow, error } = await supabase.from('change_requests').insert({
+             user_id: profile.id,
+             element_selector: currentRequestPayload.selector,
+             original_text: currentRequestPayload.originalText,
+             requested_text: newText || "[Admin Setup]",
+             image_path: imageUrl,
+             status: 'Done'
+           }).select().single();
+
+           if (error) {
+             alert('Fehlgeschlagen. ' + error.message);
+           } else {
+             iframe.contentWindow.postMessage({
+               type: 'KOLLEKTIV_LOCAL_OVERLAY_SYNC',
+               payload: {
+                 selector: currentRequestPayload.selector,
+                 status: 'Done',
+                 text: newText,
+                 id: newRow?.id
+               }
+             }, '*');
+             closeModal();
+           }
+        }
+        submitRequestBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+      });
+
+      window.addEventListener('message', async (event) => {
+        if (event.data && event.data.type === 'KOLLEKTIV_ELEMENT_CLICKED') {
+          const payload = event.data.payload;
+          currentRequestPayload = payload;
+          
+          modalElementPath.innerText = payload.selector.length > 50 ? '...' + payload.selector.substring(payload.selector.length - 50) : payload.selector;
+          modal.classList.remove('hidden');
+          modalRequestText.focus();
+          checkSubmitState();
+
+        } else if (event.data && event.data.type === 'KOLLEKTIV_SUBMIT_REQUEST') {
+          const payload = event.data.payload;
+          const { data: profile } = await supabase.from('profiles').select('id').eq('site_url', siteFolder).maybeSingle();
+          if (profile) {
+            const { data: newRow, error } = await supabase.from('change_requests').insert({
+              user_id: profile.id,
+              element_selector: payload.selector,
+              original_text: payload.originalText,
+              requested_text: payload.newText,
+              image_path: null,
+              status: 'Done'
+            }).select().single();
+
+            if (!error) {
+              iframe.contentWindow.postMessage({
+                type: 'KOLLEKTIV_LOCAL_OVERLAY_SYNC',
+                payload: {
+                  selector: payload.selector,
+                  status: 'Done',
+                  text: payload.newText,
+                  id: newRow.id
+                }
+              }, '*');
+            }
+          }
+        }
+      });
+
+      loadUrl();
+    }
+
+    initEditor();
+  </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Chat | Kollektiv</title>
+  <link href="../css/output.css" rel="stylesheet">
+  <style>::-webkit-scrollbar { display: none; } * { scrollbar-width: none; -ms-overflow-style: none; }</style>
+</head>
+<body class="bg-gray-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col h-full flex-shrink-0">
+    <div class="h-20 flex items-center px-8 border-b border-slate-800">
+      <span class="font-bold text-lg tracking-tight">Kollektiv Admin</span>
+    </div>
+    <nav class="flex-1 py-6 px-4 space-y-2">
+      <a href="/admin/index.html" class="block px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors">Dashboard</a>
+      <a href="/admin/chat.html" class="block px-4 py-2 bg-slate-800 text-white rounded-lg font-medium text-sm transition-colors">Kunden-Chats</a>
+      <div class="pt-10">
+        <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors">Abmelden</button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-row min-w-0 bg-white relative h-full w-full max-w-full">
+    
+    <!-- Contacts Sidebar -->
+    <div class="w-full md:w-80 border-r border-slate-200 flex flex-col h-full bg-slate-50 flex-shrink-0" id="contacts-sidebar">
+      <header class="bg-white h-20 border-b border-slate-200 flex items-center px-6 shadow-sm flex-shrink-0">
+        <h1 class="text-xl font-bold">Inbox</h1>
+      </header>
+      <div id="contacts-list" class="flex-1 overflow-y-auto w-full">
+        <p class="text-slate-500 text-center py-6 text-sm">Kunden werden geladen...</p>
+      </div>
+    </div>
+
+    <!-- Active Chat -->
+    <div class="hidden md:flex flex-1 flex-col h-full relative" id="chat-window">
+      <header class="bg-indigo-50 border-b border-indigo-200 px-4 md:px-6 h-20 flex items-center justify-between shadow-sm flex-shrink-0">
+         <div class="flex items-center gap-3">
+            <button id="backToContactsBtn" class="md:hidden text-indigo-600 hover:text-indigo-900 transition flex items-center justify-center bg-white p-1.5 rounded-lg shadow-sm border border-indigo-100">
+               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <div>
+              <h2 class="text-lg font-bold" id="chat-title">Kunden auswaehlen</h2>
+              <p class="text-xs text-indigo-600 font-medium font-mono" id="chat-subtitle"></p>
+            </div>
+         </div>
+      </header>
+
+      <div id="messages-container" class="flex-1 overflow-y-auto p-6 flex flex-col space-y-4 bg-slate-50">
+         <div class="text-center text-sm text-slate-500 my-auto">Waehle links eine Unterhaltung, um Nachrichten zu sehen.</div>
+      </div>
+
+      <div class="p-4 border-t border-slate-200 bg-white">
+          <form id="chat-form" class="flex space-x-4 opacity-50 pointer-events-none transition-opacity" autocomplete="off">
+              <input type="text" id="chat-input" class="flex-1 bg-white border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors block w-full sm:text-sm shadow-inner" placeholder="Antwort eingeben..." required autocomplete="off">
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm">
+                  Senden
+              </button>
+          </form>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { supabase, requireAuth } from '../js/supabase.js';
+
+    let currentSession = null;
+    let activeBusinessId = null;
+    let unsubscribe = null;
+
+    async function initAdminChat() {
+      currentSession = await requireAuth();
+      if (!currentSession) return;
+      
+      const { data: profile, error } = await supabase.from('profiles').select('role').eq('id', currentSession.user.id).maybeSingle();
+      if (error || profile?.role !== 'admin') {
+        alert("Nicht berechtigt. Kein Admin.");
+        window.location.href = '/dashboard/index.html';
+        return;
+      }
+
+      await loadContacts();
+      subscribeToAllMessagesRealtime();
+      
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = '/login.html';
+      });
+
+      document.getElementById('chat-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!activeBusinessId) return;
+
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        if (!message) return;
+        
+        input.value = '';
+
+        // Optimistic UI update
+        const container = document.getElementById('messages-container');
+        const msgHTML = `
+            <div class="flex flex-col items-end w-full">
+                <div class="rounded-2xl px-5 py-3 text-sm bg-slate-800 text-white shadow-sm max-w-[80%] opacity-80" id="temp-msg">
+                    ${escapeHtml(message)}
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', msgHTML);
+        scrollToBottom();
+
+        const { error } = await supabase.from('chat_messages').insert([{
+            business_id: activeBusinessId,
+            sender_id: currentSession.user.id, 
+            is_admin: true,
+            message: message
+        }]);
+
+        if (error) {
+            console.error('Error sending message:', error);
+            alert('Nachricht konnte nicht gesendet werden.');
+        }
+      });
+    }
+
+    async function loadContacts() {
+      const { data: clients, error } = await supabase
+        .from('profiles')
+        .select('id, business_name, site_url')
+        .eq('role', 'client')
+        .order('created_at', { ascending: false });
+
+      if (error) return;
+
+      const list = document.getElementById('contacts-list');
+      if (!clients || clients.length === 0) {
+          list.innerHTML = '<p class="text-slate-500 text-center py-6 text-sm">Keine Kunden vorhanden.</p>';
+          return;
+      }
+
+      list.innerHTML = clients.map(client => `
+         <div class="contact-item p-4 border-b border-slate-100 cursor-pointer hover:bg-slate-100 transition-colors flex items-center justify-between" data-id="${client.id}" data-name="${escapeHtml(client.business_name) || escapeHtml(client.site_url) || 'Unbekannt'}" data-site="${escapeHtml(client.site_url)}">
+            <div>
+               <h3 class="font-bold text-slate-800 text-sm">${escapeHtml(client.business_name) || 'Unbenannter Kunde'}</h3>
+               <p class="text-xs text-indigo-500 font-mono mt-0.5">/${escapeHtml(client.site_url) || 'no-url'}</p>
+            </div>
+            <div class="w-2 h-2 rounded-full hidden bg-indigo-500 unread-dot" id="unread-${client.id}"></div>
+         </div>
+      `).join('');
+
+      document.querySelectorAll('.contact-item').forEach(el => {
+         el.addEventListener('click', (e) => {
+            document.querySelectorAll('.contact-item').forEach(i => i.classList.remove('bg-indigo-50', 'border-indigo-200'));
+            const target = e.currentTarget;
+            target.classList.add('bg-indigo-50', 'border-indigo-200');
+            
+            activeBusinessId = target.dataset.id;
+            document.getElementById('chat-title').textContent = target.dataset.name;
+            document.getElementById('chat-subtitle').textContent = "/" + target.dataset.site;
+            target.querySelector('.unread-dot').classList.add('hidden');
+            
+            document.getElementById('chat-form').classList.remove('opacity-50', 'pointer-events-none');
+            
+            // On mobile, hide the sidebar and show the chat window
+            const sidebar = document.getElementById('contacts-sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('flex');
+                sidebar.classList.add('hidden', 'md:flex');
+            }
+            
+            const chatWindow = document.getElementById('chat-window');
+            if (chatWindow) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('flex');
+            }
+            
+            loadActiveChat();
+         });
+      });
+    }
+
+    async function loadActiveChat() {
+       if (!activeBusinessId) return;
+       const container = document.getElementById('messages-container');
+       container.innerHTML = '<div class="text-center text-sm text-slate-500 my-auto">Nachrichten werden geladen...</div>';
+
+       const { data: messages, error } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('business_id', activeBusinessId)
+          .order('created_at', { ascending: true });
+
+       if (error) {
+          container.innerHTML = '<div class="text-center text-sm text-red-500 my-auto">Fehler beim Laden der Nachrichten.</div>';
+          return;
+       }
+
+       if (messages.length === 0) {
+          container.innerHTML = '<div class="text-center text-sm text-slate-500 my-auto">Noch keine Nachrichten mit diesem Kunden.</div>';
+          return;
+       }
+
+       container.innerHTML = messages.map(msg => renderMessage(msg)).join('');
+       scrollToBottom();
+    }
+
+    function renderMessage(msg) {
+        const isAdmin = msg.is_admin;
+        // Admins are right side, dark slate. Clients are left side, indigo.
+        const alignClass = isAdmin ? 'items-end' : 'items-start';
+        const divClass = isAdmin 
+            ? 'bg-slate-800 text-white' 
+            : 'bg-indigo-100 text-indigo-900 border border-indigo-200';
+            
+        return `
+            <div class="flex flex-col ${alignClass} w-full">
+                <div class="rounded-2xl px-5 py-3 text-sm ${divClass} shadow-sm max-w-[80%]">
+                    ${escapeHtml(msg.message)}
+                </div>
+            </div>
+        `;
+    }
+
+    function scrollToBottom() {
+        const container = document.getElementById('messages-container');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function subscribeToAllMessagesRealtime() {
+        unsubscribe = supabase
+            .channel('admin_all_chat')
+            .on('postgres_changes', { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'chat_messages'
+            }, payload => {
+                const msg = payload.new;
+                if (msg.business_id === activeBusinessId) {
+                    loadActiveChat();
+                } else {
+                    // Show unread indicator
+                    const dot = document.getElementById(`unread-${msg.business_id}`);
+                    if (dot) dot.classList.remove('hidden');
+                }
+            })
+            .subscribe();
+    }
+
+    function escapeHtml(unsafe) {
+        return (unsafe || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    const backToContactsBtn = document.getElementById('backToContactsBtn');
+    if (backToContactsBtn) {
+        backToContactsBtn.addEventListener('click', () => {
+            const sidebar = document.getElementById('contacts-sidebar');
+            const chatWindow = document.getElementById('chat-window');
+            if (sidebar) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            }
+            if (chatWindow) {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('flex');
+            }
+        });
+    }
+
+    initAdminChat();
+  </script>
+</body>
+</html>

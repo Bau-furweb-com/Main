@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal | Kollektiv</title>
+  <link href="../css/output.css" rel="stylesheet">
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased min-h-screen flex">
+
+  <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col">
+    <div class="h-20 flex items-center px-8 border-b border-slate-800">
+      <span class="font-bold text-lg tracking-tight">Kollektiv Admin</span>
+    </div>
+    <nav class="flex-1 py-6 px-4 space-y-2" id="navMenu">
+      <!-- Active state is bg-slate-800 text-white, inactive is text-slate-400 hover... -->
+      <a href="#" data-tab="queueTab" class="nav-link block px-4 py-2 bg-slate-800 text-white rounded-lg font-medium text-sm">Globale Warteschlange</a>
+      <a href="#" data-tab="clientsTab" class="nav-link block px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors">Kunden</a>
+      <a href="#" data-tab="dbTab" class="nav-link block px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors">Datenbank-Editor</a>
+      <a href="chat.html" class="block px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors">Kunden-Chats</a>
+      <div class="pt-10">
+        <button id="logoutBtn" class="block w-full text-left px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium text-sm transition-colors">Abmelden</button>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="flex-1 overflow-y-auto">
+    <header class="bg-white h-20 border-b border-slate-200 flex items-center px-8 justify-between shadow-sm">
+      <h1 class="text-xl font-bold" id="pageTitle">Warteschlange fuer Aenderungsanfragen</h1>
+      <div id="mrrInfo" class="text-sm font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+        €0 MRR
+      </div>
+    </header>
+
+    <div class="p-8 w-full max-w-full">
+      
+      <!-- QUEUE TAB -->
+      <div id="queueTab" class="tab-content relative">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                <th class="p-4 font-medium">Unternehmen / URL</th>
+                <th class="p-4 font-medium">Element</th>
+                <th class="p-4 font-medium">Angeforderter Text</th>
+                <th class="p-4 font-medium w-32">Status</th>
+                <th class="p-4 font-medium text-right">Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="adminQueue" class="divide-y divide-slate-100 text-sm">
+              <tr><td colspan="5" class="p-6 text-center text-slate-500">Anfragen werden geladen...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CLIENTS TAB -->
+      <div id="clientsTab" class="tab-content hidden relative">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Aktive Kunden</h2>
+          <button id="openNewClientModalBtn" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+            + Neuer Kunde
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                <th class="p-4 font-medium">Unternehmensname</th>
+                <th class="p-4 font-medium">Ordner (site_url)</th>
+                <th class="p-4 font-medium">Tarifpreis</th>
+                <th class="p-4 font-medium">Aktiv</th>
+                <th class="p-4 font-medium text-right">Einstellungen</th>
+              </tr>
+            </thead>
+            <tbody id="clientsList" class="divide-y divide-slate-100 text-sm">
+              <tr><td colspan="5" class="p-6 text-center text-slate-500">Kunden werden geladen...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DATABASE EDITOR TAB -->
+      <div id="dbTab" class="tab-content hidden relative">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-lg font-semibold">Datenbank-Editor</h2>
+        </div>
+        
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 overflow-hidden">
+          <div class="flex items-center space-x-3 mb-6 relative z-10">
+            <select id="dbTableSelect" class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-slate-900 focus:border-slate-900">
+              <optgroup label="Core Tables">
+                <option value="profiles">profiles</option>
+                <option value="change_requests">change_requests</option>
+                <option value="chat_messages">chat_messages</option>
+                <option value="contact_messages">contact_messages</option>
+              </optgroup>
+            </select>
+            <button id="loadDbBtn" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Daten laden</button>
+            <button id="saveDbBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors hidden flex items-center space-x-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+              <span>Aenderungen speichern</span>
+            </button>
+          </div>
+          
+          <div class="overflow-x-auto border border-slate-200 rounded-lg bg-slate-50 min-h-[300px]">
+            <table class="w-full text-left border-collapse whitespace-nowrap min-w-full">
+              <thead id="dbTableHeader" class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider font-semibold border-b border-slate-200">
+              </thead>
+              <tbody id="dbTableBody" class="divide-y divide-slate-200 text-sm align-top bg-white">
+                <tr><td class="p-6 text-center text-slate-500">Waehle eine Tabelle und klicke auf Daten laden, um Eintraege zu sehen.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4 flex justify-center">
+            <button id="loadMoreDbBtn" class="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors hidden shadow-sm">Mehr laden</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- NEW CLIENT MODAL -->
+  <div id="newClientModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+      <h2 class="text-xl font-bold mb-6">Neuen Kunden anlegen</h2>
+      <form id="newClientForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Business Name</label>
+          <input type="text" id="addBusinessName" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-slate-900">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Site-URL / Ordner (ohne Leerzeichen)</label>
+          <input type="text" id="addSiteUrl" required pattern="^[a-zA-Z0-9_-]+$" title="Nur Buchstaben, Zahlen, Bindestriche und Unterstriche." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-slate-900" placeholder="z. B. minimalist-cafe">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Monatlicher Tarif (€)</label>
+          <input type="number" id="addPrice" required value="10" min="0" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-slate-900">
+        </div>
+        <div class="pt-4 border-t border-slate-100">
+          <label class="block text-sm font-medium text-slate-700 mb-1">Kontakt-E-Mail</label>
+          <input type="email" id="addEmail" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-slate-900">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Temporaeres Passwort (Reset bei Anmeldung erforderlich)</label>
+          <input type="text" id="addPassword" required minlength="6" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-1 focus:ring-slate-900" placeholder="TempPass123!">
+        </div>
+        <div class="flex items-center justify-end gap-3 mt-8">
+          <button type="button" id="closeModalBtn" class="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2">Abbrechen</button>
+          <button type="submit" id="createClientBtn" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-800">Kunden anlegen</button>
+        </div>
+        <p id="modalError" class="text-red-500 text-sm hidden"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- We need to import our supabase configuration properly using ES modules -->
+  <script type="module">
+    import { supabase, requireAuth } from '../js/supabase.js';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    let currentSession = null;
+
+    async function initAdmin() {
+      currentSession = await requireAuth();
+      if (!currentSession) return;
+
+      // Ensure they are actually an admin
+      const { data: profile, error: profErr } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', currentSession.user.id)
+        .maybeSingle();
+      
+      if (profErr || profile?.role !== 'admin') {
+        alert("Nicht berechtigt. Kein Admin.");
+        window.location.href = '/dashboard/index.html';
+        return;
+      }
+
+      await loadQueue();
+      await loadClients();
+    }
+
+    async function loadQueue() {
+      const { data: requests, error } = await supabase
+        .from('change_requests')
+        .select(`*, profiles(business_name, site_url)`)
+        .order('created_at', { ascending: false });
+
+      const queueEl = document.getElementById('adminQueue');
+      if (error || !requests || requests.length === 0) {
+        queueEl.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500">Keine Anfragen in der Warteschlange.</td></tr>';
+        return;
+      }
+
+      queueEl.innerHTML = requests.map(req => {
+        const nameOrUrl = req.profiles?.business_name || req.profiles?.site_url || 'Unbekannter Kunde';
+        const badgeCol = req.status === 'Done' ? 'bg-emerald-100 text-emerald-800' :
+                         req.status === 'In Progress' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+
+        // Attempt to create a text fragment link to highlight the exact text on the site.
+        const targetHref = req.profiles?.site_url
+          ? `/admin/edit.html#/${req.profiles.site_url}/index.html?element=${encodeURIComponent(req.element_selector)}`
+          : `${req.original_text && req.original_text.startsWith('http') ? req.original_text : '#'}`;
+
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 font-medium text-slate-900">${nameOrUrl}</td>
+            <td class="p-4"><span class="font-mono text-xs bg-slate-100 px-1 rounded block truncate max-w-[150px]" title="${req.element_selector}">${req.element_selector}</span></td>
+            <td class="p-4">
+        <p class="line-clamp-2 max-w-xs text-slate-600" title="${req.requested_text}">${req.requested_text}</p>
+        <a href="${targetHref}" target="_blank" class="text-xs text-indigo-600 hover:underline mt-1 inline-block">Zum Element / zur Website &rarr;</a>
+      </td>
+            <td class="p-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeCol}">
+                ${req.status}
+              </span>
+            </td>
+            <td class="p-4 text-right space-x-2">
+              ${req.status === 'Requested' ? `<button data-action="update" data-id="${req.id}" data-status="In Progress" class="text-blue-600 hover:underline">Starten</button>` : ''}
+              ${req.status !== 'Done' ? `<button data-action="update" data-id="${req.id}" data-status="Done" class="text-emerald-600 hover:underline">Abschliessen</button>` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadClients() {
+      const { data: clients, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'client')
+        .order('created_at', { ascending: false });
+        
+      const listEl = document.getElementById('clientsList');
+      if (error || !clients || clients.length === 0) {
+        listEl.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500">Noch keine Kunden vorhanden.</td></tr>';
+        document.getElementById('mrrInfo').innerText = "€0 MRR";
+        return;
+      }
+
+      let totalMRR = 0;
+      listEl.innerHTML = clients.map(client => {
+        totalMRR += parseFloat(client.monthly_price || 0);
+        return `
+          <tr class="hover:bg-slate-50 border-b border-slate-100">
+            <td class="p-4 font-semibold text-slate-900">${client.business_name || '-'}</td>
+            <td class="p-4 font-mono text-sm text-slate-600">/${client.site_url || '-'}</td>
+            <td class="p-4 text-emerald-600 font-medium">€${client.monthly_price || 0}</td>
+            <td class="p-4">
+              <span class="inline-block w-2.5 h-2.5 rounded-full ${client.site_url ? 'bg-emerald-500' : 'bg-slate-300'}"></span>
+            </td>
+            <td class="p-4 text-right">
+              <a href="/sites/${client.site_url}/index.html" target="_blank" class="text-sm text-blue-600 hover:underline">Website ansehen</a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      
+      document.getElementById('mrrInfo').innerText = `€${Number(totalMRR).toFixed(2)} MRR`;
+    }
+
+    // Event Delegation for action buttons (Update Status)
+    document.addEventListener('click', async (e) => {
+      if (e.target.dataset.action === 'update') {
+        const id = e.target.dataset.id;
+        const status = e.target.dataset.status;
+        await supabase.from('change_requests').update({ status }).eq('id', id);
+        loadQueue();
+      }
+    });
+
+    // Tab Switching
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Update nav styles
+        document.querySelectorAll('.nav-link').forEach(n => {
+          n.classList.remove('bg-slate-800', 'text-white');
+          n.classList.add('text-slate-400');
+        });
+        e.currentTarget.classList.add('bg-slate-800', 'text-white');
+        e.currentTarget.classList.remove('text-slate-400');
+        
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        
+        // Show target tab
+        const targetTab = e.currentTarget.dataset.tab;
+        document.getElementById(targetTab).classList.remove('hidden');
+        
+        // Update title
+        document.getElementById('pageTitle').innerText = 
+          targetTab === 'queueTab' ? 'Warteschlange fuer Aenderungsanfragen' :
+          targetTab === 'clientsTab' ? 'Aktive Kunden' : 'Datenbank-Editor';
+      });
+    });
+
+    // Database Editor Logic
+    let currentDbTable = '';
+    let currentDbData = [];
+    let dbModifications = {}; // track by id
+    const dbTableSelect = document.getElementById('dbTableSelect');
+    const loadDbBtn = document.getElementById('loadDbBtn');
+    const saveDbBtn = document.getElementById('saveDbBtn');
+    const dbTableHeader = document.getElementById('dbTableHeader');
+    const dbTableBody = document.getElementById('dbTableBody');
+
+    
+    let currentDbLimit = 100;
+    let currentDbOffset = 0;
+    const loadMoreDbBtn = document.getElementById('loadMoreDbBtn');
+
+    loadDbBtn.addEventListener('click', async () => {
+      const table = dbTableSelect.value;
+      if (!table) return;
+      currentDbTable = table;
+      dbModifications = {};
+      currentDbOffset = 0;
+      saveDbBtn.classList.add('hidden');
+      loadMoreDbBtn.classList.add('hidden');
+      
+      dbTableBody.innerHTML = '<tr><td class="p-6 text-center text-slate-500">Daten werden geladen...</td></tr>';
+      
+      const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false, nullsFirst: false }).range(0, currentDbLimit - 1);
+      
+      if (error) {
+        dbTableBody.innerHTML = `<tr><td class="p-6 text-center text-red-500">Fehler beim Laden der Tabelle ${table}: ${error.message}</td></tr>`;
+        return;
+      }
+      
+      if (!data || data.length === 0) {
+        dbTableHeader.innerHTML = '';
+        dbTableBody.innerHTML = `<tr><td class="p-6 text-center text-slate-500">${table} ist leer.</td></tr>`;
+        return;
+      }
+      
+      currentDbData = data;
+      if (data.length === currentDbLimit) {
+        loadMoreDbBtn.classList.remove('hidden');
+      }
+
+      const columns = Object.keys(data[0]);
+      
+      // Render Details
+      dbTableHeader.innerHTML = `<tr>${columns.map(col => `<th class="px-4 py-3 sticky top-0 bg-slate-100 z-10">${col}</th>`).join('')}</tr>`;
+      
+      dbTableBody.innerHTML = data.map((row, rIdx) => {
+        return `<tr class="hover:bg-slate-50 transition-colors">${columns.map(col => {
+          const val = row[col];
+          const isId = (col === 'id' || col === 'created_at');
+          return `<td class="px-4 py-2 border-r border-slate-100 last:border-r-0 truncate max-w-sm">
+            ${isId ? `<span class="text-slate-500" title="${val}">${val}</span>` :
+              `<input type="text" class="w-full bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:ring-0 px-1 py-0.5 text-sm" 
+                 data-row-id="${row.id}" data-col="${col}" value="${(val === null || val === undefined) ? '' : escapeHtml(String(val))}">`
+            }
+          </td>`
+        }).join('')}</tr>`;
+      }).join('');
+      
+      // Attach change listeners to inputs
+      document.querySelectorAll('#dbTableBody input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const rowId = e.target.getAttribute('data-row-id');
+          const col = e.target.getAttribute('data-col');
+          if (!dbModifications[rowId]) dbModifications[rowId] = {};
+          dbModifications[rowId][col] = e.target.value;
+          saveDbBtn.classList.remove('hidden');
+          e.target.classList.add('bg-amber-50', 'text-amber-900');
+        });
+      });
+    });
+
+    
+    loadMoreDbBtn.addEventListener('click', async () => {
+      loadMoreDbBtn.innerHTML = 'Wird geladen...';
+      loadMoreDbBtn.disabled = true;
+      currentDbOffset += currentDbLimit;
+
+      const { data, error } = await supabase.from(currentDbTable).select('*')
+        .order('created_at', { ascending: false, nullsFirst: false })
+        .range(currentDbOffset, currentDbOffset + currentDbLimit - 1);
+
+      loadMoreDbBtn.innerHTML = 'Mehr laden';
+      loadMoreDbBtn.disabled = false;
+
+      if (error || !data || data.length === 0) {
+        loadMoreDbBtn.classList.add('hidden');
+        return;
+      }
+
+      currentDbData = currentDbData.concat(data);
+      if (data.length < currentDbLimit) {
+        loadMoreDbBtn.classList.add('hidden');
+      }
+
+      const columns = Object.keys(data[0]);
+      
+      const newRowsHtml = data.map((row, rIdx) => {
+        return `<tr class="hover:bg-slate-50 transition-colors">${columns.map(col => {
+          const val = row[col];
+          const isId = (col === 'id' || col === 'created_at');
+          return `<td class="px-4 py-2 border-r border-slate-100 last:border-r-0 truncate max-w-sm">
+            ${isId ? `<span class="text-slate-500" title="${val}">${val}</span>` :
+              `<input type="text" class="w-full bg-transparent border-0 border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:ring-0 px-1 py-0.5 text-sm" 
+                 data-row-id="${row.id}" data-col="${col}" value="${(val === null || val === undefined) ? '' : escapeHtml(String(val))}">`
+            }
+          </td>`
+        }).join('')}</tr>`;
+      }).join('');
+      
+      dbTableBody.insertAdjacentHTML('beforeend', newRowsHtml);
+
+      // Re-attach change listeners to inputs (just the new ones)
+      // We'll be lazy and just re-attach all of them since it's idempotent regarding tracking
+      document.querySelectorAll('#dbTableBody input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const rowId = e.target.getAttribute('data-row-id');
+          const col = e.target.getAttribute('data-col');
+          if (!dbModifications[rowId]) dbModifications[rowId] = {};
+          dbModifications[rowId][col] = e.target.value;
+          saveDbBtn.classList.remove('hidden');
+          e.target.classList.add('bg-amber-50', 'text-amber-900');
+        });
+      });
+    });
+
+    saveDbBtn.addEventListener('click', async () => {
+      saveDbBtn.innerHTML = 'Speichert...';
+      saveDbBtn.disabled = true;
+      let hasError = false;
+
+      for (const [id, updates] of Object.entries(dbModifications)) {
+        // Find existing record to handle proper type conversion securely (e.g. empty string to null if appropriate, but keeping strings as much as possible for generic editor)
+        const { error } = await supabase.from(currentDbTable).update(updates).eq('id', id);
+        if (error) {
+          console.error("Save error: ", error);
+          hasError = true;
+          alert(`Datensatz ${id} konnte nicht aktualisiert werden: ${error.message}`);
+        }
+      }
+      
+      if (!hasError) {
+        alert("Aenderungen erfolgreich gespeichert!");
+        loadDbBtn.click(); // reload
+      } else {
+        saveDbBtn.innerHTML = 'Aenderungen speichern';
+        saveDbBtn.disabled = false;
+      }
+    });
+
+    function escapeHtml(unsafe) {
+      return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // Create Client Modal Logic
+    const modal = document.getElementById('newClientModal');
+    
+    document.getElementById('openNewClientModalBtn').addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+    
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      modal.classList.add('hidden');
+      document.getElementById('newClientForm').reset();
+      document.getElementById('modalError').classList.add('hidden');
+    });
+
+    document.getElementById('newClientForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = document.getElementById('createClientBtn');
+      const errEl = document.getElementById('modalError');
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerText = "Wird erstellt...";
+
+      const email = document.getElementById('addEmail').value;
+      const password = document.getElementById('addPassword').value;
+      const businessName = document.getElementById('addBusinessName').value;
+      const siteUrl = document.getElementById('addSiteUrl').value;
+      const price = document.getElementById('addPrice').value;
+
+      try {
+        // Create an isolated instance of Supabase Auth to bypass automatic sign-in hijacking our admin session
+        const isolatedClient = createClient(supabase.supabaseUrl, supabase.supabaseKey, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        });
+
+        const { data, error } = await isolatedClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              role: 'client',
+              business_name: businessName,
+              site_url: siteUrl,
+              monthly_price: price
+            }
+          }
+        });
+
+        if (error) throw error;
+        
+        // On success
+        modal.classList.add('hidden');
+        document.getElementById('newClientForm').reset();
+        await loadClients(); // Refresh list
+
+      } catch(err) {
+        errEl.innerText = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Kunden anlegen";
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/login.html';
+    });
+
+    initAdmin();
+  </script>
+</body>
+</html>

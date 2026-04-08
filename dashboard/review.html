@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anfrage pruefen | Kollektiv</title>
+  <link href="../css/output.css" rel="stylesheet">
+
+  <script type="module">import "https://cdn.skypack.dev/@hotwired/turbo";</script>
+  <style>::-webkit-scrollbar { display: none; } * { scrollbar-width: none; -ms-overflow-style: none; }</style>
+</head>
+<body class="bg-gray-50 text-slate-900 font-sans antialiased h-screen flex flex-col overflow-hidden">
+  
+  <!-- Header -->
+  <header class="bg-indigo-50 border-b border-indigo-200 px-6 py-3 flex items-center justify-between shadow-sm z-10 flex-shrink-0 transition-opacity h-20">
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-slate-900">← Zurueck zur Warteschlange</a>
+      <div class="h-4 w-px bg-slate-200"></div>
+      <h1 class="text-lg font-bold text-slate-900" id="reqTitle">Anfrage pruefen</h1>
+      <span id="priorityBadge" class="hidden px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">Prioritaet</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <select id="statusSelect" class="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white font-medium">
+        <option value="Requested">In Warteschlange</option>
+        <option value="In Progress">In Bearbeitung</option>
+        <option value="Needs More Info">Mehr Informationen noetig</option>
+        <option value="Done">Abgeschlossen</option>
+      </select>
+      <button id="saveBtn" class="bg-indigo-600 hover:bg-indigo-700 text-slate-900 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm">Status speichern</button>
+    </div>
+  </header>
+
+  <!-- Split Screen Content -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- 2/3 Iframe Website Viewer (Left) -->
+    <main class="flex-grow bg-slate-100 flex flex-col border-r border-slate-200 w-2/3 h-full relative flex-1 overflow-y-auto">
+      <div class="absolute inset-x-0 top-0 h-10 bg-white border-b border-slate-200 flex items-center px-4 z-10 shrink-0 shadow-sm opacity-90">
+         <span class="text-xs font-mono text-slate-500 truncate" id="targetUrl">URL wird geladen...</span>
+      </div>
+      <iframe id="websitePreview" class="w-full h-full pt-10" border="0"></iframe>
+    </main>
+
+    <!-- 1/3 Request Details (Right) -->
+      <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-indigo-200 hidden md:flex transition-all duration-300 z-20 h-full overflow-y-auto flex-col flex-shrink-0">
+      <div class="h-20 flex items-center px-6 border-b border-indigo-200">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Studio<span class="text-indigo-600">Web</span></h1>
+      </div>
+      <nav class="flex-1 px-4 py-6 space-y-1" id="sidebarNav">
+        <a href="/dashboard/index.html" class="block px-4 py-2 text-slate-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg font-medium text-sm transition-colors">Start</a>
+        <a href="/dashboard/billing.html" class="block px-4 py-2 text-slate-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg font-medium text-sm transition-colors">Abrechnung</a>
+        <a href="/dashboard/chat.html" class="block px-4 py-2 text-slate-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg font-medium text-sm transition-colors">Chat</a>
+        <div class="relative mt-5 mb-1 pt-1">
+          <a href="#" class="block px-4 py-2 text-slate-600 rounded-lg font-medium text-sm opacity-50 grayscale cursor-not-allowed pointer-events-none flex items-center justify-between">
+            <span class="truncate">Add-ons</span>
+            <span class="text-[9px] font-bold text-indigo-600 tracking-wider uppercase bg-white px-1.5 py-0.5 rounded-full border border-indigo-200 shadow-sm mt-0.5">Bald</span>
+          </a>
+        </div>
+      </nav>
+      <div class="p-4 border-t border-indigo-200">
+        <button id="logoutBtn" class="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-white hover:bg-slate-50 border border-indigo-200 text-slate-900 rounded-lg transition-colors text-sm font-medium shadow-sm">
+          <span>Abmelden</span>
+        </button>
+      </div>
+    </aside>
+    
+  </div>
+
+  <script type="module">
+    import { supabase, requireAuth } from '../js/supabase.js';
+
+    let currentRequestId = null;
+
+    async function init() {
+      const session = await requireAuth();
+      if (!session || session.profile.role !== 'admin') {
+        window.location.href = '/dashboard/index.html';
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      currentRequestId = params.get('id');
+
+      if (!currentRequestId) {
+        alert("Keine Anfrage-ID angegeben.");
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('change_requests')
+        .select('*, profiles(business_name, site_url, has_priority_support)')
+        .eq('id', currentRequestId)
+        .single();
+        
+      if (error || !data) {
+        console.error("Fehler beim Laden der Anfrage:", error);
+        return;
+      }
+
+      function formatContextType(selector, original) {
+        if (original === 'New Menu Item Request') return 'Neue Menueartikel-Anfrage';
+        if (selector.includes('img') || selector.includes('bg-')) return 'Bildhintergrund oder Quellenaenderung';
+        if (selector.includes('button') || selector.includes('a[href]')) return 'Link- und Button-Interaktionsaenderung';
+        if (selector.includes('h1') || selector.includes('h2') || selector.includes('h3')) return 'Lesbarkeit von Ueberschriften';
+        if (selector.includes('div.grid')) return 'Seitenlayout und Rastereinstellungen';
+        return 'Standardmaessige visuelle Textaenderung';
+      }
+
+      // Populate UI
+      document.getElementById('businessName').innerText = data.profiles.business_name;
+      document.getElementById('reqTitle').innerText = `Ticket: #${data.id.substring(0,8)}`;
+      document.getElementById('targetContextType').innerText = formatContextType(data.element_selector, data.original_text);
+      document.getElementById('targetSelector').innerText = data.element_selector;
+      document.getElementById('originalText').innerText = data.original_text || 'Keine';
+      document.getElementById('requestedText').innerText = data.requested_text;
+      
+      const statusSelect = document.getElementById('statusSelect');
+      statusSelect.value = data.status;
+
+      if (data.profiles.has_priority_support) {
+        document.getElementById('priorityBadge').classList.remove('hidden');
+      }
+
+      // Try extract URL from originalText metadata block if available
+      let targetUrlText = data.profiles.site_url || 'Unbekannter Host';
+      if (data.original_text && data.original_text.includes('URL:')) {
+        const lines = data.original_text.split('\n');
+        const urlLine = lines.find(l => l.startsWith('URL:'));
+        if (urlLine) targetUrlText = urlLine.split('URL:')[1].trim();
+      }
+
+      const iframe = document.getElementById('websitePreview');
+      if (targetUrlText && (targetUrlText.startsWith('http://') || targetUrlText.startsWith('https://'))) {
+        iframe.src = targetUrlText;
+        document.getElementById('targetUrl').innerText = targetUrlText;
+      } else {
+        document.getElementById('targetUrl').innerText = "Ungueltige oder relative URL: " + targetUrlText;
+      }
+
+      if (data.image_path) {
+        document.getElementById('imageBlock').classList.remove('hidden');
+        const imgUrl = supabase.storage.from('request_images').getPublicUrl(data.image_path).data.publicUrl;
+        document.getElementById('attachedImg').src = imgUrl;
+        document.getElementById('imageLink').href = imgUrl;
+      }
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+       const newStatus = document.getElementById('statusSelect').value;
+       const { error } = await supabase
+        .from('change_requests')
+        .update({ status: newStatus })
+        .eq('id', currentRequestId);
+
+       if (error) {
+         alert('Status konnte nicht aktualisiert werden.');
+       } else {
+         const btn = document.getElementById('saveBtn');
+         const orig = btn.innerText;
+         btn.innerText = 'Gespeichert!';
+         btn.classList.add('bg-green-600', 'hover:bg-green-700');
+         btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+         setTimeout(() => {
+           btn.innerText = orig;
+           btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+           btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+         }, 2000);
+       }
+    });
+
+    init();
+  </script>
+</body>
+</html>

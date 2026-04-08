@@ -1,0 +1,86 @@
+@import "tailwindcss";
+@source "..";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  
+  --color-accent: #8b5cf6;
+  --color-accentHover: #7c3aed;
+  --color-dark: #0f0f11;
+  --color-card: rgba(255, 255, 255, 0.05);
+
+  --animate-blob: blob 10s infinite;
+  --animate-cursor: cursor .75s step-end infinite;
+
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+
+  @keyframes cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-dark);
+    color: white;
+    overflow-x: hidden;
+  }
+
+  /* --- CUSTOM SCROLLBAR --- */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--color-dark); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; border: 2px solid var(--color-dark); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+  html { scrollbar-width: thin; scrollbar-color: var(--color-accent) var(--color-dark); }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.2);
+  }
+
+  .fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    will-change: opacity, visibility;
+  }
+  
+  .fade-in-section.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Glowing background blobs */
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    z-index: -1;
+    transition: transform 0.1s linear; 
+  }
+
+  /* --- SCROLL SNAP STOP UTILITY --- */
+  .snap-always {
+    scroll-snap-stop: always;
+  }
+}

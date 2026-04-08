@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR-Bestellungen | Kollektiv</title>
+  <link href="../css/output.css" rel="stylesheet">
+
+  <script type="module">import "https://cdn.skypack.dev/@hotwired/turbo";</script>
+  <style>::-webkit-scrollbar { display: none; } * { scrollbar-width: none; -ms-overflow-style: none; }</style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans h-screen overflow-hidden antialiased flex">
+
+    <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-indigo-200 hidden md:flex transition-all duration-300 z-20 h-full overflow-y-auto flex-col flex-shrink-0">
+      <div class="h-20 flex items-center px-6 border-b border-indigo-200">
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Studio<span class="text-indigo-600">Web</span></h1>
+      </div>
+      <nav class="flex-1 px-4 py-6 space-y-1" id="sidebarNav">
+        <a href="/dashboard/index.html" class="block px-4 py-2 text-slate-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg font-medium text-sm transition-colors">Start</a>
+        <a href="/dashboard/billing.html" class="block px-4 py-2 text-slate-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg font-medium text-sm transition-colors">Abrechnung</a>
+        <a href="/dashboard/chat.html" class="block px-4 py-2 text-slate-600 hover:text-indigo-900 hover:bg-indigo-50 rounded-lg font-medium text-sm transition-colors">Chat</a>
+        <div class="relative mt-5 mb-1 pt-1">
+          <a href="#" class="block px-4 py-2 text-slate-600 rounded-lg font-medium text-sm opacity-50 grayscale cursor-not-allowed pointer-events-none flex items-center justify-between">
+            <span class="truncate">Add-ons</span>
+            <span class="text-[9px] font-bold text-indigo-600 tracking-wider uppercase bg-white px-1.5 py-0.5 rounded-full border border-indigo-200 shadow-sm mt-0.5">Bald</span>
+          </a>
+        </div>
+      </nav>
+      <div class="p-4 border-t border-indigo-200">
+        <button id="logoutBtn" class="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-white hover:bg-slate-50 border border-indigo-200 text-slate-900 rounded-lg transition-colors text-sm font-medium shadow-sm">
+          <span>Abmelden</span>
+        </button>
+      </div>
+    </aside>
+
+  <main class="flex flex-col min-w-0 flex-1 overflow-y-auto">
+    <header class="bg-indigo-50 border-b border-indigo-200 px-6 py-3 flex items-center justify-between shadow-sm z-10 flex-shrink-0 transition-opacity h-20">
+      <div class="flex items-center gap-4">
+        <h1 class="text-xl font-bold text-slate-900">QR-Bestellungen</h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="addMenuItemBtn" class="text-sm bg-indigo-600 text-slate-900 hover:bg-indigo-700 px-4 py-1.5 rounded-lg font-medium transition shadow-sm">+ Artikel hinzufuegen</button>
+        <a id="qrUrl" href="#" target="_blank" class="text-sm bg-slate-100 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-slate-200 transition font-mono border border-slate-200">Oeffentliches Menue ansehen</a>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+      <!-- Orders List (Left) -->
+      <section class="w-full md:w-1/2 lg:w-2/3 flex flex-col bg-slate-50 border-r border-slate-200 h-full">
+        <div class="h-14 flex items-center px-6 border-b border-slate-200 bg-white justify-between shrink-0">
+           <h2 class="text-sm font-bold tracking-wide text-slate-700 uppercase">Live-Bestellungen</h2>
+           <button onclick="window.loadOrders()" class="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3 py-1 rounded font-medium transition">⟳ Aktualisieren</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-6 space-y-4" id="ordersList">
+           <!-- Loaded securely by JS -->
+        </div>
+      </section>
+
+      <!-- Menu Management (Right) -->
+      <section class="w-full md:w-1/2 lg:w-1/3 flex flex-col h-full bg-white">
+        <div class="h-14 flex items-center px-6 border-b border-slate-200 justify-between shrink-0">
+           <h2 class="text-sm font-bold tracking-wide text-slate-700 uppercase">Menuekatalog</h2>
+        </div>
+        <div id="addMenuItemForm" class="hidden bg-slate-50 p-4 border-b border-slate-200 shadow-inner space-y-2">
+           <input type="text" id="newMenuName" placeholder="Artikelname" class="w-full text-sm px-3 py-2 border border-slate-300 rounded focus:ring-indigo-500">
+           <div class="flex gap-2">
+             <input type="text" id="newMenuPrice" placeholder="Preis (z. B. 12,50)" class="w-1/2 text-sm px-3 py-2 border border-slate-300 rounded focus:ring-indigo-500">
+             <input type="text" id="newMenuCategory" placeholder="Kategorie" class="w-1/2 text-sm px-3 py-2 border border-slate-300 rounded focus:ring-indigo-500">
+           </div>
+           <input type="text" id="newMenuDesc" placeholder="Beschreibung (optional)" class="w-full text-sm px-3 py-2 border border-slate-300 rounded focus:ring-indigo-500">
+           <input type="file" id="newMenuImage" accept="image/*" class="w-full text-sm px-3 py-2 border border-slate-300 rounded focus:ring-indigo-500">
+           <div class="flex justify-end gap-2 pt-1">
+              <button id="cancelAddBtn" class="text-xs px-3 py-1.5 text-slate-500 hover:text-slate-700 font-medium">Abbrechen</button>
+              <button id="saveNewItemBtn" class="text-xs px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded font-medium shadow-sm transition">Artikel anfragen</button>
+           </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="menuItemsList">
+           <!-- Loaded securely by JS -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import { supabase, requireAuth } from '../js/supabase.js';
+    
+    let session = null;
+
+    async function init() {
+      session = await requireAuth();
+      if (!session) return;
+      
+      const realId = session.profile.parent_id || session.user.id;
+      const menuUrl = `/menu.html#id=${realId}`;
+      document.getElementById('qrUrl').href = menuUrl;
+
+      // Staff can request menu items
+      if (session.profile.role === 'staff') {
+        // We allow requests now
+      }
+
+      await loadMenu();
+      await loadOrders();
+    }
+
+    /* --- ORDERS --- */
+    window.loadOrders = async () => {
+      const list = document.getElementById('ordersList');
+      list.innerHTML = '<p class="text-center py-4 text-slate-400">Live-Bestellungen werden geladen...</p>';
+
+      const { data, error } = await supabase
+        .from('qr_orders')
+        .select('*')
+        .eq('business_id', session.profile.parent_id || session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) { list.innerHTML = `<p class="text-center py-4 text-red-500">${error.message}</p>`; return; }
+      if (!data || data.length === 0) { list.innerHTML = '<p class="text-center py-8 text-slate-400 font-medium">Noch keine Live-Bestellungen.</p>'; return; }
+
+      list.innerHTML = data.map(order => buildOrderCard(order)).join('');
+    };
+
+    function buildOrderCard(order) {
+      const d = new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const itemsList = order.items.map(item => `
+         <div class="flex justify-between text-sm py-1 border-b border-slate-100 last:border-0 text-slate-700">
+           <span>${item.qty}x ${item.name}</span>
+           <span class="font-mono">€${(item.price * item.qty).toFixed(2)}</span>
+         </div>
+      `).join('');
+
+      return `
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-3">
+             <div class="flex items-center gap-3">
+                <div class="bg-indigo-100 text-indigo-700 font-bold text-lg h-10 w-10 flex items-center justify-center rounded-lg">
+                  ${order.table_number.substring(0,3)}
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-800 leading-tight">Tisch ${order.table_number}</h3>
+                  <p class="text-xs text-slate-500 font-mono">Bestellt um: ${d}</p>
+                </div>
+             </div>
+             
+             <div class="flex flex-col items-end">
+               <select class="text-xs border border-slate-200 rounded px-2 py-1 font-bold bg-slate-50 uppercase tracking-wide cursor-pointer" onchange="window.updateOrderStatus('${order.id}', this.value)">
+                 <option value="Pending" ${order.status==='Pending'?'selected':''}>Ausstehend</option>
+                 <option value="Preparing" ${order.status==='Preparing'?'selected':''}>In Zubereitung</option>
+                 <option value="Ready" ${order.status==='Ready'?'selected':''}>Bereit</option>
+                 <option value="Delivered" ${order.status==='Delivered'?'selected':''}>Geliefert</option>
+                 <option value="Cancelled" ${order.status==='Cancelled'?'selected':''}>Storniert</option>
+               </select>
+              <span class="text-xs font-mono text-slate-400 mt-2">ID: ${order.id.substring(0,6)}</span>
+             </div>
+          </div>
+          
+          <div class="mb-3 px-2">
+            ${itemsList}
+          </div>
+          
+          <div class="bg-slate-50 px-3 py-2 rounded font-mono font-bold flex justify-between">
+            <span class="text-slate-500 text-xs">VOM KUNDEN EINZUZIEHEN:</span> 
+             €${order.total_amount.toFixed(2)}
+          </div>
+        </div>
+      `;
+    }
+
+    window.updateOrderStatus = async (id, status) => {
+      await supabase.from('qr_orders').update({ status }).eq('id', id);
+    };
+
+
+    /* --- MENU ITEMS --- */
+    window.loadMenu = async () => {
+      const list = document.getElementById('menuItemsList');
+      const { data, error } = await supabase
+        .from('menu_items')
+        .select('*')
+        .eq('business_id', session.profile.parent_id || session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) return;
+      if (!data || data.length === 0) { list.innerHTML = '<p class="text-center py-8 text-slate-400 text-sm font-medium border-2 border-dashed border-slate-200 rounded-lg m-4">Das Menue ist leer.</p>'; return; }
+
+      const isStaff = session.profile.role === 'staff';
+
+      list.innerHTML = data.map(item => `
+        <div class="bg-white border ${item.is_available ? 'border-slate-200' : 'border-red-200 bg-red-50 opacity-75'} rounded-lg p-3 hover:shadow-sm transition">
+           <div class="flex justify-between items-start">
+               <div class="flex gap-3">
+                 ${item.image_url ? `<img src="${item.image_url}" alt="Item image" class="h-10 w-10 object-cover rounded shadow-sm shrink-0 bg-slate-100">` : ''}
+                 <div>
+                   <h4 class="font-bold text-slate-800 text-sm">${item.name}</h4>
+                   ${item.category ? `<span class="inline-block bg-slate-100 text-slate-500 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded mb-1">${item.category}</span>` : ''}
+                   <p class="text-xs text-slate-500 line-clamp-1 h-4">${item.description || ''}</p>
+                 </div>
+             <p class="font-mono font-bold text-sm bg-slate-50 px-2 py-0.5 rounded border border-slate-200 shrink-0 ml-2">€${parseFloat(item.price).toFixed(2)}</p>
+           </div>
+           
+           ${!isStaff ? `
+           <div class="mt-3 flex justify-between items-center border-t border-slate-100 pt-2">
+              <label class="text-xs flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" onchange="window.toggleAccess('${item.id}', this.checked)" ${item.is_available ? 'checked' : ''}>
+                <span class="text-slate-600 font-medium">Verfuegbar</span>
+              </label>
+              <button onclick="window.deleteItem('${item.id}')" class="text-xs text-red-500 hover:text-red-700 font-bold px-2 py-1">Loeschen</button>
+           </div>
+           ` : ''}
+        </div>
+      `).join('');
+    };
+
+    window.toggleAccess = async (id, is_available) => {
+      await supabase.from('menu_items').update({ is_available }).eq('id', id);
+      loadMenu();
+    };
+
+    window.deleteItem = async (id) => {
+      if(!confirm("Diesen Menueartikel loeschen?")) return;
+      await supabase.from('menu_items').delete().eq('id', id);
+      loadMenu();
+    };
+
+    
+    document.getElementById('addMenuItemBtn').addEventListener('click', () => {
+      document.getElementById('addMenuItemForm').classList.toggle('hidden');
+    });
+
+    document.getElementById('cancelAddBtn').addEventListener('click', () => {
+      document.getElementById('addMenuItemForm').classList.add('hidden');
+    });
+
+    document.getElementById('saveNewItemBtn').addEventListener('click', async () => {
+      const name = document.getElementById('newMenuName').value.trim();
+      const priceStr = document.getElementById('newMenuPrice').value.replace(',', '.').trim();
+      const category = document.getElementById('newMenuCategory').value.trim();
+      const desc = document.getElementById('newMenuDesc').value.trim();
+      // image is handled via file upload
+
+      if(!name || !priceStr) {
+        alert("Name und Preis sind erforderlich.");
+        return;
+      }
+
+      const price = parseFloat(priceStr);
+      if(isNaN(price)) {
+        alert("Ungueltiges Preisformat. Bitte Zahlen verwenden (z. B. 12,50).");
+        return;
+      }
+
+      const realId = session.profile.parent_id || session.user.id;
+      // Upload image if present
+      let uploadedImagePath = null;
+      const fileInput = document.getElementById('newMenuImage');
+      if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const fileExt = file.name.split('.').pop();
+          const fileName = Math.random() + "-" + Date.now() + "." + fileExt;
+          const { data: uploadData, error: uploadErr } = await supabase.storage.from('menu-images').upload(fileName, file);
+          if (!uploadErr && uploadData) {
+             uploadedImagePath = uploadData.path;
+          }
+      }
+
+      const requestedPayload = {
+         name: name,
+         price: price,
+         category: category || null,
+         description: desc || null
+      };
+
+      const { error } = await supabase.from('change_requests').insert([{
+         user_id: realId,
+         element_selector: 'Menu Add Item',
+         original_text: 'New Menu Item Request',
+         requested_text: JSON.stringify(requestedPayload),
+         image_path: uploadedImagePath
+      }]);
+      
+      if(error) {
+        alert("Fehler beim Speichern des Artikels: " + error.message);
+      } else {
+        document.getElementById('newMenuName').value = '';
+        document.getElementById('newMenuPrice').value = '';
+        document.getElementById('newMenuCategory').value = '';
+        document.getElementById('newMenuDesc').value = '';
+        document.getElementById('newMenuImage').value = '';
+        document.getElementById('addMenuItemForm').classList.add('hidden');
+        loadMenu();
+      }
+    });
+
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = '/login.html';
+    });
+
+    init();
+  </script>
+</body>
+</html>

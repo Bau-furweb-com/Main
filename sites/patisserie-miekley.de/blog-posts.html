@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="de" id="html-02-00000">
+<head id="head-02-00001">
+  <meta charset="UTF-8" id="meta-02-00002">
+  <meta name="viewport" content="width=device-width, initial-scale=1" id="meta-02-00003">
+  <title id="title-02-00004">Blogeintrag | Patisserie Miekley</title>
+  <meta name="description" content="Blogeintrag Ansicht der Patisserie Miekley." id="meta-02-00005">
+  <script id="script-02-00006">
+    (function () {
+      try {
+        if (localStorage.getItem("siteLang") === "en") {
+          document.documentElement.lang = "en";
+          document.documentElement.classList.add("i18n-pending");
+        }
+      } catch (_err) {}
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" id="link-02-00007">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin id="link-02-00008">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" id="link-02-00009">
+  <link rel="stylesheet" href="style.css" id="link-02-00010">
+</head>
+<body data-page="blog" id="body-02-00011">
+  <div class="page-backdrop" aria-hidden="true" id="page-backdrop-02-00012"></div>
+  <header class="site-header" id="site-header-02-00013">
+    <div class="container header-inner" id="container-02-00014">
+      <a class="logo" href="index.html" id="logo-02-00015"><img src="Images/Logo.png" alt="Patisserie Miekley Logo" id="img-02-00016"><span id="span-02-00017">Patisserie Miekley</span></a>
+      <nav id="sitenav-02-00018" class="site-nav" data-i18n-aria="nav_main" aria-label="Hauptnavigation">
+        <a data-page="home" data-i18n="nav_home" href="index.html" id="a-02-00019">Start</a>
+        <a data-page="cafe" data-i18n="nav_cafe" href="cafe.html" id="a-02-00020">Cafe</a>
+        <a data-page="torten" data-i18n="nav_torten" href="torten.html" id="a-02-00021">Torten</a>
+        <a data-page="toertchen" data-i18n="nav_toertchen" href="toertchen.html" id="a-02-00022">Toertchen</a>
+        <a data-page="blog" data-i18n="nav_blog" href="blog.html" id="a-02-00023">Blog</a>
+        <a data-page="contact" data-i18n="nav_contact" href="contact.html" id="a-02-00024">Kontakt</a>
+      </nav>
+      <div class="lang-switch" aria-label="Language switch" id="lang-switch-02-00025">
+        <button type="button" data-lang="de" class="active" id="active-02-00026">DE</button>
+        <button type="button" data-lang="en" id="button-02-00027">EN</button>
+      </div>
+      <button id="menutoggle-02-00028" class="menu-toggle" data-i18n="menu_button" type="button">Menue</button>
+    </div>
+  </header>
+
+  <main id="main-02-00029">
+    <section class="container section section-top-tight reveal" id="container-02-00030">
+      <article id="blograwhtml-02-00031" class="blog-raw"></article>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer-02-00032">
+    <div class="footer-inner" id="footer-inner-02-00033">
+      <div id="div-02-00034">© <span data-year id="span-02-00035"></span> Bau.FurWeb</div>
+      <div class="footer-links" id="footer-links-02-00036">
+        <a data-i18n="footer_impressum" href="impressum.html" id="a-02-00037">Impressum</a>
+        <a data-i18n="footer_datenschutz" href="datenschutz.html" id="a-02-00038">Datenschutz</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js" id="script-02-00039"></script>
+</body>
+</html>

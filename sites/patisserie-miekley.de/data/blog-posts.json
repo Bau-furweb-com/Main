@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "fruehling-neue-glasuren",
+    "title": "Neue Fruehlingsglasuren im Atelier",
+    "description": "Drei neue Glasuren fuer Toertchen und Hochzeitstorten sind jetzt verfuegbar.",
+    "postedAt": "2026-04-08T10:00:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Neue Fruehlingsglasuren</h2><p>Diese Woche haben wir drei neue Glasuren finalisiert: Yuzu, Himbeere und Salted Caramel.</p><p>Alle Varianten koennen ab sofort bei Bestellungen genutzt werden.</p></article>"
+  },
+  {
+    "slug": "wedding-tasting-ablauf",
+    "title": "So laeuft das Wedding Tasting",
+    "description": "Vom Erstgespraech bis zum finalen Design in drei klaren Schritten.",
+    "postedAt": "2026-04-06T15:30:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Wedding Tasting Ablauf</h2><p>Im ersten Termin sprechen wir ueber Stil, Farben und Gaestezahl.</p><p>Danach folgt die Verkostung mit bis zu vier Sorten.</p></article>"
+  },
+  {
+    "slug": "sommerkarte-cafe-elisabeth",
+    "title": "Sommerkarte im Cafe Elisabeth",
+    "description": "Leichte Desserts und Eiskaffee Specials fuer warme Tage.",
+    "postedAt": "2026-04-04T09:10:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Sommerkarte</h2><p>Die Sommerkarte bringt leichte Fruchtmousses und neue Kaffeespezialitaeten.</p></article>"
+  },
+  {
+    "slug": "toertchen-platten-events",
+    "title": "Toertchen-Platten fuer Events",
+    "description": "Welche Mengen wir empfehlen und wie die Lieferung ablaeuft.",
+    "postedAt": "2026-04-02T11:00:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Toertchen fuer Events</h2><p>Fuer Firmenevents empfehlen wir Platten mit 3-4 Sorten und klaren Allergiehinweisen.</p></article>"
+  },
+  {
+    "slug": "saisonale-rohstoffe-april",
+    "title": "Saisonale Rohstoffe im April",
+    "description": "Rhabarber, Erdbeere und Vanille aus ausgewaehlten Quellen.",
+    "postedAt": "2026-03-31T13:40:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Rohstoffe April</h2><p>Wir arbeiten mit saisonaler Erdbeere und ausgesuchten Vanillesorten.</p></article>"
+  },
+  {
+    "slug": "behind-the-scenes-atelier",
+    "title": "Behind the Scenes im Atelier",
+    "description": "Einblick in Produktion, Dekor und Finish.",
+    "postedAt": "2026-03-29T08:15:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Behind the Scenes</h2><p>Vom ersten Mousse-Ansatz bis zum finalen Mirror Glaze braucht es Praezision und Timing.</p></article>"
+  },
+  {
+    "slug": "franchise-nein-qualitaet-ja",
+    "title": "Warum wir klein bleiben",
+    "description": "Qualitaet vor Masse: unser Anspruch an jedes einzelne Produkt.",
+    "postedAt": "2026-03-24T17:00:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Qualitaet vor Masse</h2><p>Wir produzieren bewusst in kleinerem Umfang, um die Qualitaet konstant hoch zu halten.</p></article>"
+  },
+  {
+    "slug": "lieferung-und-abholung",
+    "title": "Lieferung und Abholung",
+    "description": "Alle Infos zu Zeitfenstern, Verpackung und Abholslots.",
+    "postedAt": "2026-03-21T14:20:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Lieferung und Abholung</h2><p>Abholungen sind in festen Slots moeglich, Lieferungen nach Verfuegbarkeit.</p></article>"
+  },
+  {
+    "slug": "wedding-portfolio-update",
+    "title": "Wedding Portfolio Update",
+    "description": "Neue Galerie mit drei aktuellen Hochzeitstorten Projekten.",
+    "postedAt": "2026-03-18T10:35:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Wedding Portfolio</h2><p>Aktuell zeigen wir neue Projekte in modernem, reduziertem Stil.</p></article>"
+  },
+  {
+    "slug": "faq-allergene",
+    "title": "FAQ Allergene und Unvertraeglichkeiten",
+    "description": "Welche Angaben wir brauchen und welche Alternativen moeglich sind.",
+    "postedAt": "2026-03-15T16:55:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>FAQ Allergene</h2><p>Bitte teile uns Allergene immer fruehzeitig mit, damit wir sicher planen koennen.</p></article>"
+  },
+  {
+    "slug": "cafe-events-vermietung",
+    "title": "Cafe Events und Vermietung",
+    "description": "Unsere Raeume fuer private Feiern und Firmenveranstaltungen.",
+    "postedAt": "2026-03-11T09:00:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Events im Cafe</h2><p>Unsere Raeumlichkeiten bieten Platz fuer mehr als 80 Personen.</p></article>"
+  },
+  {
+    "slug": "osterkollektion-preview",
+    "title": "Preview: Osterkollektion",
+    "description": "Ein erster Blick auf limitiertes Oster-Design und Aromen.",
+    "postedAt": "2026-03-08T12:20:00+02:00",
+    "image": "Images/Logo.png",
+    "html": "<article><h2>Osterkollektion</h2><p>Die Osterkollektion setzt auf helle Schokolade und Zitronennoten.</p></article>"
+  }
+]

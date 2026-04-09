@@ -42,7 +42,7 @@ const translations = {
     home_loc_btn: "Route in Google Maps",
     home_digital_h3: "Digital und Telefon",
     home_digital_phone_label: "Telefon",
-    home_digital_web_label: "Web",
+    home_digital_web_label: "Email",
     home_digital_btn: "Zur Kontaktseite",
 
     cafe_h1: "Cafe Elisabeth in Kleinmachnow",
@@ -183,7 +183,7 @@ const translations = {
     home_loc_btn: "Open Route in Google Maps",
     home_digital_h3: "Digital and Phone",
     home_digital_phone_label: "Phone",
-    home_digital_web_label: "Website",
+    home_digital_web_label: "Email",
     home_digital_btn: "Open Contact Page",
 
     cafe_h1: "Cafe Elisabeth in Kleinmachnow",

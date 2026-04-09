@@ -12,7 +12,7 @@
   // Setup styles for overlays
   const style = document.createElement('style');
   style.innerHTML = `
-    .Bau.FurWeb-hover-outline {
+    .BauFurWeb-hover-outline {
       outline: 2px dashed #4f46e5 !important;
       outline-offset: 2px !important;
       cursor: crosshair !important;
@@ -20,16 +20,16 @@
       transition: all 0.1s ease-in-out !important;
     }
     
-    .Bau.FurWeb-requested-overlay {
+    .BauFurWeb-requested-overlay {
       position: relative !important;
     }
 
     /* Phase 1: White background with text saying change requested */
-    .Bau.FurWeb-phase1 {
+    .BauFurWeb-phase1 {
       position: relative !important;
       color: transparent !important;
     }
-    .Bau.FurWeb-phase1::before {
+    .BauFurWeb-phase1::before {
       content: 'Änderung angefragt';
       position: absolute;
       inset: 0;
@@ -46,10 +46,10 @@
     }
 
     /* Phase 2: Original element with dark translucent overlay saying change requested */
-    .Bau.FurWeb-phase2 {
+    .BauFurWeb-phase2 {
       position: relative !important;
     }
-    .Bau.FurWeb-phase2::after {
+    .BauFurWeb-phase2::after {
       content: 'Änderung angefragt';
       position: absolute;
       inset: 0;
@@ -66,7 +66,7 @@
     }
 
     /* Hover tooltips */
-    .Bau.FurWeb-tooltip {
+    .BauFurWeb-tooltip {
       position: absolute;
       background: #111827;
       color: white;
@@ -85,18 +85,21 @@
       left: 50%;
       transform: translateX(-50%);
     }
-    .Bau.FurWeb-requested-overlay:hover .Bau.FurWeb-tooltip {
+    .BauFurWeb-requested-overlay:hover .BauFurWeb-tooltip {
       opacity: 1;
     }
-    .Bau.FurWeb-tooltip.top {
+    .BauFurWeb-tooltip.top {
       bottom: calc(100% + 5px);
     }
-    .Bau.FurWeb-tooltip.bottom {
+    .BauFurWeb-tooltip.bottom {
       top: calc(100% + 5px);
     }
     
-    #Bau.FurWeb-inline-popup {
+    #BauFurWeb-inline-popup {
+      all: initial;
       position: absolute;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI", Roboto, Helvetica, Arial;
+      box-sizing: border-box;
       background: #1e293b;
       border: 1px solid #475569;
       border-radius: 12px;
@@ -107,7 +110,10 @@
       align-items: center;
       gap: 10px;
     }
-    #Bau.FurWeb-inline-popup input[type="text"] {
+    #BauFurWeb-inline-popup input[type="text"] {
+      all: unset;
+      box-sizing: border-box;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI", Roboto, Helvetica, Arial;
       background: transparent;
       border: none;
       color: white;
@@ -115,10 +121,13 @@
       outline: none;
       width: 220px;
     }
-    #Bau.FurWeb-inline-popup input[type="text"]::placeholder {
+    #BauFurWeb-inline-popup input[type="text"]::placeholder {
       color: #94a3b8;
     }
-    .Bau.FurWeb-file-btn {
+    .BauFurWeb-file-btn {
+      all: unset;
+      box-sizing: border-box;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI", Roboto, Helvetica, Arial;
       color: #94a3b8;
       cursor: pointer;
       display: flex;
@@ -128,24 +137,24 @@
       border-radius: 6px;
       transition: all 0.2s;
     }
-    .Bau.FurWeb-file-btn:hover {
+    .BauFurWeb-file-btn:hover {
       background: rgba(255, 255, 255, 0.1);
       color: white;
     }
-    .Bau.FurWeb-file-btn.has-file {
+    .BauFurWeb-file-btn.has-file {
       color: #10b981;
     }
     
-    #Bau.FurWeb-editor-ui { display: none; }
+    #BauFurWeb-editor-ui { display: none; }
   `;
   document.head.appendChild(style);
 
   // Restore previous requests visually
   function renderOverlays() {
     // Remove old ones
-    document.querySelectorAll('.Bau.FurWeb-tooltip').forEach(e => e.remove());
-    document.querySelectorAll('.Bau.FurWeb-requested-overlay').forEach(e => {
-      e.classList.remove('Bau.FurWeb-requested-overlay', 'Bau.FurWeb-phase2');
+    document.querySelectorAll('.BauFurWeb-tooltip').forEach(e => e.remove());
+    document.querySelectorAll('.BauFurWeb-requested-overlay').forEach(e => {
+      e.classList.remove('BauFurWeb-requested-overlay', 'BauFurWeb-phase2');
     });
 
     if (!isEditModeEnabled) return;
@@ -153,13 +162,13 @@
     storedRequests.forEach(req => {
       try {
         const el = document.querySelector(req.selector);
-        if (el && !el.classList.contains('Bau.FurWeb-phase1')) { // don't override if in phase 1
-          el.classList.add('Bau.FurWeb-requested-overlay', 'Bau.FurWeb-phase2');
+        if (el && !el.classList.contains('BauFurWeb-phase1')) { // don't override if in phase 1
+          el.classList.add('BauFurWeb-requested-overlay', 'BauFurWeb-phase2');
           
-          let tooltip = el.querySelector('.Bau.FurWeb-tooltip');
+          let tooltip = el.querySelector('.BauFurWeb-tooltip');
           if (!tooltip) {
             tooltip = document.createElement('div');
-            tooltip.className = 'Bau.FurWeb-tooltip bottom'; // Default to bottom
+            tooltip.className = 'BauFurWeb-tooltip bottom'; // Default to bottom
             el.appendChild(tooltip);
           }
           const statusDE = { 'Pending': 'Ausstehend', 'Done': 'Erledigt', 'Requested': 'Angefragt' };
@@ -205,10 +214,10 @@
       isEditModeEnabled = e.data.payload.enabled;
       renderOverlays();
       if (hoveredEl) {
-        hoveredEl.classList.remove('Bau.FurWeb-hover-outline');
+        hoveredEl.classList.remove('BauFurWeb-hover-outline');
         hoveredEl = null;
       }
-      const popup = document.getElementById('Bau.FurWeb-inline-popup');
+      const popup = document.getElementById('BauFurWeb-inline-popup');
       if (popup) popup.remove();
     }
     
@@ -225,10 +234,10 @@
       try {
         const el = document.querySelector(selector);
         if (el) {
-          el.classList.add('Bau.FurWeb-phase1');
+          el.classList.add('BauFurWeb-phase1');
           
           setTimeout(() => {
-            el.classList.remove('Bau.FurWeb-phase1');
+            el.classList.remove('BauFurWeb-phase1');
             renderOverlays();
           }, 5000);
         } else {
@@ -249,16 +258,16 @@
     if (ignoredTags.includes(e.target.tagName)) return;
     
     if (hoveredEl) {
-      hoveredEl.classList.remove('Bau.FurWeb-hover-outline');
+      hoveredEl.classList.remove('BauFurWeb-hover-outline');
     }
     hoveredEl = e.target;
-    hoveredEl.classList.add('Bau.FurWeb-hover-outline');
+    hoveredEl.classList.add('BauFurWeb-hover-outline');
   });
 
   document.addEventListener('mouseout', (e) => {
     if (!isEditModeEnabled || isLocked) return;
     if (hoveredEl) {
-      hoveredEl.classList.remove('Bau.FurWeb-hover-outline');
+      hoveredEl.classList.remove('BauFurWeb-hover-outline');
       hoveredEl = null;
     }
   });
@@ -293,13 +302,13 @@
     if (!isEditModeEnabled) return;
     
     // Ignore internal popup clicks
-    if (e.target.closest('#Bau.FurWeb-inline-popup')) return;
+    if (e.target.closest('#BauFurWeb-inline-popup')) return;
 
     if (isLocked) {
       // User clicked outside the locked element and popup
       isLocked = false;
-      if (hoveredEl) hoveredEl.classList.remove('Bau.FurWeb-hover-outline');
-      const existing = document.getElementById('Bau.FurWeb-inline-popup');
+      if (hoveredEl) hoveredEl.classList.remove('BauFurWeb-hover-outline');
+      const existing = document.getElementById('BauFurWeb-inline-popup');
       if (existing) existing.remove();
       return;
     }
@@ -312,17 +321,17 @@
 
     // Was it an existing overlay badge?
     let target = e.target;
-    if (target.classList.contains('Bau.FurWeb-overlay-badge') || target.closest('.Bau.FurWeb-overlay-badge')) {
-      target = target.closest('.Bau.FurWeb-requested-overlay');
+    if (target.classList.contains('BauFurWeb-overlay-badge') || target.closest('.BauFurWeb-overlay-badge')) {
+      target = target.closest('.BauFurWeb-requested-overlay');
       if (!target) return;
     }
 
-    if (target.classList.contains('Bau.FurWeb-phase1') || target.classList.contains('Bau.FurWeb-phase2')) {
+    if (target.classList.contains('BauFurWeb-phase1') || target.classList.contains('BauFurWeb-phase2')) {
       return; // Already requested
     }
 
     // Clean up existing popups
-    const existing = document.getElementById('Bau.FurWeb-inline-popup');
+    const existing = document.getElementById('BauFurWeb-inline-popup');
     if (existing) existing.remove();
     
     // Lock the outline
@@ -351,14 +360,14 @@
     const originalText = originalTextRaw + metadata;
 
     const popup = document.createElement('div');
-    popup.id = 'Bau.FurWeb-inline-popup';
+    popup.id = 'BauFurWeb-inline-popup';
     
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = 'Änderung beschreiben & Enter drücken';
     
     const fileLabel = document.createElement('label');
-    fileLabel.className = 'Bau.FurWeb-file-btn';
+    fileLabel.className = 'BauFurWeb-file-btn';
     fileLabel.title = 'Bild anhängen';
     fileLabel.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><input type="file" accept="image/*" style="display:none;" />';
     
@@ -373,7 +382,7 @@
         const reader = new FileReader();
         reader.onload = (ev) => {
           attachedFileDataUrl = ev.target.result;
-          fileLabel.className = 'Bau.FurWeb-file-btn has-file';
+          fileLabel.className = 'BauFurWeb-file-btn has-file';
         };
         reader.readAsDataURL(file);
       }
@@ -385,13 +394,13 @@
         if (!text && !attachedFileDataUrl) return;
         
         isLocked = false;
-        target.classList.remove('Bau.FurWeb-hover-outline');
+        target.classList.remove('BauFurWeb-hover-outline');
         hoveredEl = null;
 
         popup.remove();
         
         // Phase 1 locally
-        target.classList.add('Bau.FurWeb-phase1');
+        target.classList.add('BauFurWeb-phase1');
         
         let payloadImage = null;
         if (attachedFileDataUrl) {
@@ -412,12 +421,12 @@
         // Simulate network processing until parent echoes back Bau.FurWeb_LOCAL_OVERLAY_SYNC
         // But if parent doesn't echo within 5 seconds for some reason, we manually trigger Phase 2.
         setTimeout(() => {
-          if (target.classList.contains('Bau.FurWeb-phase1')) {
-            target.classList.remove('Bau.FurWeb-phase1');
-            target.classList.add('Bau.FurWeb-phase2');
+          if (target.classList.contains('BauFurWeb-phase1')) {
+            target.classList.remove('BauFurWeb-phase1');
+            target.classList.add('BauFurWeb-phase2');
             
             const tooltip = document.createElement('div');
-            tooltip.className = 'Bau.FurWeb-tooltip bottom';
+            tooltip.className = 'BauFurWeb-tooltip bottom';
             tooltip.innerHTML = "<strong style='color:#60a5fa'>[Angefragt]</strong><br/>" + (text || '[Bild angehängt]');
             target.appendChild(tooltip);
           }

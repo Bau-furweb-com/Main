@@ -225,7 +225,7 @@
           
           // Disable edit mode by default inside the iframe for admin
           const configScript = frameDoc.createElement('script');
-          configScript.textContent = 'window.__Bau.FurWebAdminDisableEdit = true;';
+          configScript.textContent = 'window.__BauFurWebAdminDisableEdit = true;';
           frameDoc.head.appendChild(configScript);
 
           const script = frameDoc.createElement('script');

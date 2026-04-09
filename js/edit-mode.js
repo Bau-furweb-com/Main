@@ -3,10 +3,10 @@
 // It outlines elements on hover and prompts for changes on click.
 
 (function initVisualEditor() {
-  if (window.__Bau.FurWebEditorInitialized) return;
-  window.__Bau.FurWebEditorInitialized = true;
+  if (window.__BauFurWebEditorInitialized) return;
+  window.__BauFurWebEditorInitialized = true;
 
-  let isEditModeEnabled = !window.__Bau.FurWebAdminDisableEdit; // Enabled by default when injected, unless turned off directly
+  let isEditModeEnabled = !window.__BauFurWebAdminDisableEdit; // Enabled by default when injected, unless turned off directly
   const storedRequests = JSON.parse(localStorage.getItem('Bau.FurWeb_requests') || '[]');
 
   // Setup styles for overlays

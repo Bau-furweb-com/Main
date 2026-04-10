@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="gallery_h1">Galerie</title>
+  <meta name="description" data-i18n-content="gallery_intro" content="Impressionen aus unserem Haus und aus der Kuche.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="gallery">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <img src="Images/Logo.png" alt="Gasthaus Kronprinz logo">
+      </a>
+
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html" data-page-link="home" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-page-link="menu" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-page-link="blog" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-page-link="gallery" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+
+      <div class="header-right">
+        <div class="lang-switch" aria-label="Language switch">
+          <button type="button" data-lang="de" class="active">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="cta-call" href="tel:+49308012092" data-i18n="cta_call">Reservierung: +49 30 8012092</a>
+      </div>
+
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span class="menu-toggle-lines"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-overlay" aria-hidden="true">
+    <div class="mobile-panel">
+      <nav class="mobile-nav" aria-label="Mobile navigation">
+        <a href="index.html" data-page-link="home" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-page-link="menu" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-page-link="blog" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-page-link="gallery" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+      <div class="lang-switch" aria-label="Language switch">
+        <button type="button" data-lang="de" class="active">DE</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <a class="cta-call" href="tel:+49308012092" data-i18n="cta_call_short">Anrufen</a>
+    </div>
+  </div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <header class="section-head reveal">
+          <h1 data-i18n="gallery_h1">Galerie</h1>
+          <p data-i18n="gallery_intro">Impressionen aus unserem Haus und aus der Kuche.</p>
+        </header>
+
+        <section class="gallery-group">
+          <h2 class="reveal" data-i18n="gallery_food">UNSERE SCHLEMMEREIEN</h2>
+          <div class="gallery-track">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=80" alt="Signature dish one">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=900&q=80" alt="Signature dish two">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=900&q=80" alt="Signature dish three">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=900&q=80" alt="Signature dish four">
+          </div>
+        </section>
+
+        <section class="gallery-group">
+          <h2 class="reveal" data-i18n="gallery_interior">UNSER INNENRAUM</h2>
+          <div class="gallery-track">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1559329007-40df8a9345d8?auto=format&fit=crop&w=900&q=80" alt="Dining room one">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1592861956120-e524fc739696?auto=format&fit=crop&w=900&q=80" alt="Dining room two">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&q=80" alt="Dining room three">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80" alt="Dining room four">
+          </div>
+        </section>
+
+        <section class="gallery-group">
+          <h2 class="reveal" data-i18n="gallery_beer">UNSERE BIERE</h2>
+          <div class="gallery-track">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80" alt="Beer one">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1532634896-26909d0d4b6b?auto=format&fit=crop&w=900&q=80" alt="Beer two">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=900&q=80" alt="Beer three">
+            <img class="gallery-photo reveal" src="https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=900&q=80" alt="Beer four">
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p data-i18n="footer_note">Gasthaus Kronprinz Berlin</p>
+      <p class="footer-links"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> | <a href="datenschutz.html" data-i18n="footer_datenschutz">Datenschutz</a></p>
+      <p>&copy; <span data-year></span> <span data-i18n="footer_rights">Alle Rechte vorbehalten.</span></p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

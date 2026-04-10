@@ -1,0 +1,41 @@
+[
+  {
+    "slug": "saisonstart-spargel",
+    "postedAt": "2026-04-04T18:00:00+02:00",
+    "image": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=80",
+    "title": {
+      "de": "Saisonstart mit Spargel",
+      "en": "Spring Asparagus Season"
+    },
+    "description": {
+      "de": "Unsere Fruehlingskarte verbindet klassische Gerichte mit frischen regionalen Produkten.",
+      "en": "Our spring menu combines classic favorites with fresh regional produce."
+    }
+  },
+  {
+    "slug": "bier-kueche-abend",
+    "postedAt": "2026-03-18T18:00:00+01:00",
+    "image": "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=1200&q=80",
+    "title": {
+      "de": "Bier und Kueche Abend",
+      "en": "Beer and Kitchen Evening"
+    },
+    "description": {
+      "de": "Entdecken Sie abgestimmte Bierbegleitungen zu beliebten Kronprinz-Spezialitaeten.",
+      "en": "Discover curated beer pairings for our most loved Kronprinz specialties."
+    }
+  },
+  {
+    "slug": "ein-abend-im-kronprinz",
+    "postedAt": "2026-02-27T18:00:00+01:00",
+    "image": "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1200&q=80",
+    "title": {
+      "de": "Ein Abend im Kronprinz",
+      "en": "An Evening at Kronprinz"
+    },
+    "description": {
+      "de": "Vom ersten Gruss aus der Kueche bis zum Dessert: so verlaeuft ein typischer Abend bei uns.",
+      "en": "From your first kitchen greeting to dessert: a look at a typical evening with us."
+    }
+  }
+]

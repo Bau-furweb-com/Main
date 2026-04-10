@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="menu_h1">Speisekarte & Abendkarte</title>
+  <meta name="description" data-i18n-content="menu_intro" content="Zwei Karten fur Mittag und Abend mit saisonalen Empfehlungen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="menu">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <img src="Images/Logo.png" alt="Gasthaus Kronprinz logo">
+      </a>
+
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html" data-page-link="home" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-page-link="menu" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-page-link="blog" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-page-link="gallery" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+
+      <div class="header-right">
+        <div class="lang-switch" aria-label="Language switch">
+          <button type="button" data-lang="de" class="active">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="cta-call" href="tel:+49308012092" data-i18n="cta_call">Reservierung: +49 30 8012092</a>
+      </div>
+
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span class="menu-toggle-lines"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-overlay" aria-hidden="true">
+    <div class="mobile-panel">
+      <nav class="mobile-nav" aria-label="Mobile navigation">
+        <a href="index.html" data-page-link="home" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-page-link="menu" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-page-link="blog" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-page-link="gallery" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+      <div class="lang-switch" aria-label="Language switch">
+        <button type="button" data-lang="de" class="active">DE</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <a class="cta-call" href="tel:+49308012092" data-i18n="cta_call_short">Anrufen</a>
+    </div>
+  </div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <header class="section-head reveal">
+          <h1 data-i18n="menu_h1">Speisekarte & Abendkarte</h1>
+          <p data-i18n="menu_intro">Zwei Karten fur Mittag und Abend mit saisonalen Empfehlungen.</p>
+        </header>
+
+        <div class="menu-tabs reveal">
+          <button class="menu-tab active" type="button" data-menu-target="speise" data-i18n="tab_speise">Speisekarte</button>
+          <button class="menu-tab" type="button" data-menu-target="abend" data-i18n="tab_abend">Abendkarte</button>
+        </div>
+
+        <div class="menu-mobile-switch reveal">
+          <label for="menu-mobile-select" data-i18n="menu_mobile_label">Menuteil waehlen</label>
+          <select id="menu-mobile-select">
+            <option value="speise" data-i18n="tab_speise">Speisekarte</option>
+            <option value="abend" data-i18n="tab_abend">Abendkarte</option>
+          </select>
+        </div>
+
+        <section class="card menu-panel active reveal" data-menu-panel="speise">
+          <p class="menu-time" data-i18n="speise_time">Speisekarte verfugbar: 12:00 - 17:00</p>
+          <div id="speise-list"></div>
+        </section>
+
+        <section class="card menu-panel reveal" data-menu-panel="abend">
+          <p class="menu-time" data-i18n="abend_time">Abendkarte verfugbar: 17:00 - 22:30</p>
+          <div id="abend-list"></div>
+        </section>
+
+        <p class="notice-phone reveal" data-i18n="menu_note">Reservierungen bitte telefonisch.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p data-i18n="footer_note">Gasthaus Kronprinz Berlin</p>
+      <p class="footer-links"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> | <a href="datenschutz.html" data-i18n="footer_datenschutz">Datenschutz</a></p>
+      <p>&copy; <span data-year></span> <span data-i18n="footer_rights">Alle Rechte vorbehalten.</span></p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

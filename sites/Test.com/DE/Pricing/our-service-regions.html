@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviceregionen – Home Assistant Helper</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+        .navbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; background: #2e7d32; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .navbar .brand { font-size: 1rem; font-weight: 700; color: white; text-decoration: none; }
+        .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; border-radius: 6px; background: none; border: none; transition: background 0.2s; }
+        .hamburger:hover { background: rgba(255,255,255,0.15); }
+        .hamburger span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+        .drawer-overlay.open { display: block; }
+        .drawer { position: fixed; top: 0; right: -280px; width: 260px; height: 100%; background: #fff; z-index: 201; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; padding: 20px; font-size: 1rem; font-weight: 700; }
+        .drawer nav a { display: flex; align-items: center; gap: 12px; padding: 15px 20px; text-decoration: none; color: #333; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        .drawer nav a:hover { background: #f5fdf5; color: #2e7d32; }
+        .drawer nav a .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .drawer nav a.active { color: #2e7d32; font-weight: 600; }
+        .page { max-width: 720px; margin: 32px auto; padding: 0 16px 60px; }
+        .hero { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; border-radius: 12px; padding: 44px 32px; text-align: center; margin-bottom: 24px; }
+        .hero h1 { font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin-top: 10px; opacity: 0.88; font-size: 1rem; }
+        .card { background: #fff; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+        .card h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 12px; }
+        .card p { font-size: 0.95rem; line-height: 1.7; color: #444; }
+        .card p + p { margin-top: 8px; }
+        .info-box { background: #f3f9f3; border-left: 4px solid #43a047; border-radius: 4px; padding: 14px 16px; font-size: 0.9rem; color: #444; line-height: 1.6; }
+        .discount-badge { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #43a047, #2e7d32); color: white; border-radius: 10px; padding: 16px 20px; margin-top: 4px; }
+        .discount-badge .pct { font-size: 2rem; font-weight: 900; line-height: 1; }
+        .discount-badge .label { font-size: 0.9rem; line-height: 1.4; opacity: 0.92; }
+        #map { width: 100%; height: 420px; border-radius: 8px; margin-top: 8px; border: 1px solid #e8e8e8; z-index: 1; }
+        .leaflet-container { border-radius: 8px; }
+        .map-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+        .map-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #555; }
+        .map-legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 2px solid; }
+        .btn { display: inline-block; margin-top: 16px; padding: 11px 24px; background: #43a047; color: white; text-decoration: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: background 0.2s; }
+        .btn:hover { background: #388e3c; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a class="brand" href="../homepage.html">🏠 Home Assistant Helper</a>
+    <button class="hamburger" id="menuBtn" onclick="toggleDrawer()" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+    </button>
+</div>
+<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">Menü</div>
+    <nav>
+        <a href="../homepage.html"><span class="icon">🏠</span> Startseite</a>
+        <a href="pricing.html"><span class="icon">💶</span> Preise</a>
+        <a href="server-pricing.html"><span class="icon">🖥️</span> Serverpreise</a>
+        <a href="our-service-regions.html" class="active"><span class="icon">📍</span> Serviceregionen</a>
+        <a href="../Manual/setup_manual.html"><span class="icon">📖</span> Anleitung</a>
+        <a href="../about-me.html"><span class="icon">👤</span> Über mich</a>
+        <a href="../Contact_us/contact_us.html"><span class="icon">✉️</span> Kontakt</a>
+        <a href="../faq.html"><span class="icon">❓</span> FAQ</a>
+    </nav>
+</div>
+
+<div class="page">
+    <div class="hero">
+        <h1>Unsere Serviceregionen</h1>
+        <p>Wo wir aktiv sind und wie sich regionale Faktoren auf die Preise auswirken.</p>
+    </div>
+
+    <div class="card">
+        <h2>Warum regionale Preise?</h2>
+        <p>Die Bedürfnisse und Herausforderungen jeder Region können sich unterscheiden. Unsere Preisstruktur spiegelt die einzigartigen Faktoren wider, die mit der Bereitstellung von Dienstleistungen in verschiedenen Gebieten verbunden sind.</p>
+    </div>
+
+    <div class="card">
+        <h2>Freunde-Empfehlungsrabatt</h2>
+        <div class="discount-badge">
+            <div class="pct">50%</div>
+            <div class="label">Rabatt auf den Versand<br>für Sie und Ihren Freund</div>
+        </div>
+        <p style="margin-top: 14px;">Erzählen Sie einem Freund von uns. Wenn dieser eines unserer Produkte oder Dienstleistungen kauft, erhalten Sie beide <strong>50 % Rabatt</strong> auf den Versand.</p>
+    </div>
+
+    <div class="card">
+        <h2>Aktuelle Serviceregionen</h2>
+        <div class="info-box">Wir erweitern unsere Serviceregionen kontinuierlich. Kontaktieren Sie uns, um zu erfahren, ob wir in Ihrer Region verfügbar sind.</div>
+        <a class="btn" href="../Contact_us/contact_us.html">Verfügbarkeit anfragen</a>
+    </div>
+
+    <div class="card">
+        <h2>Servicekarte</h2>
+        <div id="map"></div>
+        <div class="map-legend">
+            <div class="map-legend-item"><div class="map-legend-dot" style="background:#2e7d3233;border-color:#2e7d32;"></div> Kerngebiet (~1,5 km) – Normaler Preis</div>
+            <div class="map-legend-item"><div class="map-legend-dot" style="background:#43a04722;border-color:#43a047;"></div> Erweitertes Gebiet (~3,5 km) – <strong>+10 €</strong></div>
+            <div class="map-legend-item"><div class="map-legend-dot" style="background:#ff980015;border-color:#f57c00;"></div> Auf Anfrage (~7,0 km) – <strong>+20 €</strong></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleDrawer() {
+        const open = document.getElementById('drawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open', open);
+        document.getElementById('menuBtn').classList.toggle('open', open);
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+        document.getElementById('menuBtn').classList.remove('open');
+    }
+
+    // ── Leaflet map ──
+    const origin = [52.4262, 13.2769];
+    const map = L.map('map', { scrollWheelZoom: false }).setView(origin, 11);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18
+    }).addTo(map);
+
+    // Zone circles
+    L.circle(origin, {
+        radius: 1500,
+        color: '#2e7d32', weight: 2, opacity: 0.9,
+        fillColor: '#2e7d32', fillOpacity: 0.08
+    }).addTo(map).bindTooltip('Kerngebiet – normaler Preis', { sticky: true });
+
+    L.circle(origin, {
+        radius: 3500,
+        color: '#43a047', weight: 2, opacity: 0.7, dashArray: '6 4',
+        fillColor: '#43a047', fillOpacity: 0.05
+    }).addTo(map).bindTooltip('Erweitertes Gebiet – +10 € Aufpreis', { sticky: true });
+
+    L.circle(origin, {
+        radius: 7000,
+        color: '#f57c00', weight: 2, opacity: 0.5, dashArray: '4 6',
+        fillColor: '#ff9800', fillOpacity: 0.04
+    }).addTo(map).bindTooltip('Auf Anfrage – +20 € Aufpreis', { sticky: true });
+</script>
+
+</body>
+</html>

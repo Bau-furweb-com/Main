@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serververgleich – Home Assistant Helper</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+        .navbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; background: #2e7d32; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .navbar .brand { font-size: 1rem; font-weight: 700; color: white; text-decoration: none; }
+        .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; border-radius: 6px; background: none; border: none; transition: background 0.2s; }
+        .hamburger:hover { background: rgba(255,255,255,0.15); }
+        .hamburger span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+        .drawer-overlay.open { display: block; }
+        .drawer { position: fixed; top: 0; right: -280px; width: 260px; height: 100%; background: #fff; z-index: 201; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; padding: 20px; font-size: 1rem; font-weight: 700; }
+        .drawer nav a { display: flex; align-items: center; gap: 12px; padding: 15px 20px; text-decoration: none; color: #333; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        .drawer nav a:hover { background: #f5fdf5; color: #2e7d32; }
+        .drawer nav a .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .drawer nav a.active { color: #2e7d32; font-weight: 600; }
+
+        .page { max-width: 760px; margin: 32px auto; padding: 0 16px 60px; }
+        .hero { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; border-radius: 12px; padding: 44px 32px; text-align: center; margin-bottom: 24px; }
+        .hero h1 { font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin-top: 10px; opacity: 0.88; font-size: 1rem; }
+        .card { background: #fff; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+        .card h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 16px; }
+        .card p { font-size: 0.95rem; line-height: 1.7; color: #444; }
+
+        /* ── Gen switcher ── */
+        .gen-switcher {
+            display: flex;
+            gap: 0;
+            background: #f0f2f5;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        .gen-switcher label {
+            flex: 1;
+            text-align: center;
+            padding: 11px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #777;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+        .gen-switcher input[type=radio] { display: none; }
+        .gen-switcher input#radioGen1:checked ~ label[for=radioGen1] {
+            background: #fff;
+            color: #2e7d32;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+        }
+        .gen-switcher input#radioGen2:checked ~ label[for=radioGen2] {
+            background: #fff;
+            color: #1565c0;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+        }
+
+        /* ── Gen panels ── */
+        .gen-panel { display: none; }
+        .gen-panel.active { display: block; }
+
+        /* ── Diff box ── */
+        .diff-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .diff-item { border-radius: 8px; padding: 14px 16px; }
+        .diff-item.gen1 { background: #f1f8f1; border: 1px solid #c8e6c9; }
+        .diff-item.gen2 { background: #e8f2fd; border: 1px solid #bbdefb; }
+        .diff-item .di-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+        .diff-item.gen1 .di-title { color: #2e7d32; }
+        .diff-item.gen2 .di-title { color: #1565c0; }
+        .diff-item p { font-size: 0.83rem; color: #555; line-height: 1.55; }
+
+        /* ── Server cards ── */
+        .server-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-bottom: 20px; }
+        .server-card { border: 1px solid #e8e8e8; border-radius: 10px; padding: 18px; background: #fafafa; position: relative; display: flex; flex-direction: column; transition: box-shadow 0.2s, border-color 0.2s; }
+        .server-card:hover { box-shadow: 0 4px 14px rgba(67,160,71,0.13); border-color: #a5d6a7; }
+        .server-card.gen2 { background: #f5f9ff; border-color: #d0e8ff; }
+        .server-card.gen2:hover { border-color: #90caf9; box-shadow: 0 4px 14px rgba(21,101,192,0.1); }
+        .server-card.oos { opacity: 0.5; }
+        .badge { position: absolute; top: 10px; right: 10px; font-size: 0.62rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; }
+        .badge.red   { background: #e53935; color: white; }
+        .badge.blue  { background: #1565c0; color: white; }
+        .badge.green { background: #2e7d32; color: white; }
+        .server-card .name  { font-weight: 700; font-size: 0.98rem; color: #222; padding-right: 48px; }
+        .server-card .price { font-size: 1.3rem; font-weight: 800; color: #2e7d32; margin: 6px 0 4px; }
+        .server-card.gen2 .price { color: #1565c0; }
+        .server-card .tagline { font-size: 0.8rem; font-style: italic; color: #666; line-height: 1.45; flex: 1; margin-bottom: 10px; }
+        .spec-list { list-style: none; border-top: 1px solid #f0f0f0; padding-top: 9px; margin-top: auto; }
+        .spec-list li { font-size: 0.78rem; color: #555; padding: 3px 0; display: flex; gap: 6px; align-items: flex-start; border-bottom: 1px solid #f8f8f8; }
+        .spec-list li:last-child { border-bottom: none; }
+
+        /* ── Comparison table ── */
+        .cmp-table-wrap { overflow-x: auto; margin-top: 4px; }
+        .cmp-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        .cmp-table thead tr { border-bottom: 2px solid #e0e0e0; }
+        .cmp-table th { padding: 10px 12px; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; color: #999; font-weight: 600; white-space: nowrap; }
+        .cmp-table th:first-child { width: 36%; }
+        .cmp-table td { padding: 11px 12px; border-bottom: 1px solid #f3f3f3; color: #444; vertical-align: top; }
+        .cmp-table tbody tr:last-child td { border-bottom: none; }
+        .cmp-table tbody tr:hover td { background: #f9fdf9; }
+        .cmp-table .row-label { font-weight: 600; color: #333; }
+        .cmp-table .oos-cell { color: #bbb; font-style: italic; }
+        /* Gen1 header accent */
+        .cmp-table.gen1-tbl th.col-accent { color: #2e7d32; }
+        /* Gen2 header accent */
+        .cmp-table.gen2-tbl th.col-accent { color: #1565c0; }
+        .cmp-table td .check { color: #43a047; font-weight: 700; }
+        .cmp-table td .cross { color: #bbb; }
+        .cmp-table .price-cell { font-weight: 800; font-size: 1rem; color: #2e7d32; }
+        .cmp-table.gen2-tbl .price-cell { color: #1565c0; }
+        .cmp-table .oos-row td { opacity: 0.5; }
+
+        .section-divider { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: #aaa; margin: 20px 0 10px; font-weight: 700; }
+
+        .btn { display: inline-block; margin-top: 16px; padding: 11px 24px; background: #43a047; color: white; text-decoration: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: background 0.2s; }
+        .btn:hover { background: #388e3c; }
+        .btn-outline { background: transparent; border: 2px solid #43a047; color: #43a047; margin-left: 10px; }
+        .btn-outline:hover { background: #f3f9f3; }
+
+        @media (max-width: 520px) {
+            .diff-box { grid-template-columns: 1fr; }
+            .card { padding: 18px; }
+            .hero { padding: 32px 18px; }
+            .hero h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a class="brand" href="../homepage.html">🏠 Home Assistant Helper</a>
+    <button class="hamburger" id="menuBtn" onclick="toggleDrawer()" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+    </button>
+</div>
+<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">Menü</div>
+    <nav>
+        <a href="../homepage.html"><span class="icon">🏠</span> Startseite</a>
+        <a href="pricing.html"><span class="icon">💶</span> Preise</a>
+        <a href="server-pricing.html" class="active"><span class="icon">🖥️</span> Serverpreise</a>
+        <a href="our-service-regions.html"><span class="icon">📍</span> Serviceregionen</a>
+        <a href="../Manual/setup_manual.html"><span class="icon">📖</span> Anleitung</a>
+        <a href="../about-me.html"><span class="icon">👤</span> Über mich</a>
+        <a href="../Contact_us/contact_us.html"><span class="icon">✉️</span> Kontakt</a>
+        <a href="../faq.html"><span class="icon">❓</span> FAQ</a>
+    </nav>
+</div>
+
+<div class="page">
+
+    <div class="hero">
+        <h1>Serververgleich</h1>
+        <p>Finden Sie den richtigen Server für Ihr Smart Home – ganz ohne Technik-Kenntnisse.</p>
+    </div>
+
+    <!-- Gen-Unterschied -->
+    <div class="card">
+        <h2>Was ist der Unterschied?</h2>
+        <div class="diff-box">
+            <div class="diff-item gen1">
+                <div class="di-title">🕹️ 1. Generation</div>
+                <p>Älter, aber bewährt. Gut für kleinere Setups und Einsteiger. Günstigerer Preis, etwas langsamere Reaktionszeit bei vielen Geräten gleichzeitig.</p>
+            </div>
+            <div class="diff-item gen2">
+                <div class="di-title">🚀 2. Generation</div>
+                <p>Neu &amp; deutlich schneller. Flüssigere Dashboards, reagiert auch bei vielen Geräten und Kameras zuverlässig. Ideal für anspruchsvollere Setups.</p>
+            </div>
+        </div>
+
+        <!-- Radio switcher -->
+        <div class="gen-switcher" id="genSwitcher">
+            <input type="radio" name="gen" id="radioGen1" checked onchange="switchGen('gen1')">
+            <label for="radioGen1">🕹️ 1. Generation</label>
+            <input type="radio" name="gen" id="radioGen2" onchange="switchGen('gen2')">
+            <label for="radioGen2">🚀 2. Generation</label>
+        </div>
+
+        <!-- Gen 1 panel -->
+        <div class="gen-panel active" id="panelGen1">
+            <div class="section-divider">Übersicht – Karten</div>
+            <div class="server-grid">
+                <div class="server-card">
+                    <div class="name">Basis</div>
+                    <div class="price">60 €</div>
+                    <div class="tagline">Für Wohnungen und Häuser jeder Größe – ideal für einfache Automatisierungen wie Licht an/aus und Zeitpläne.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis großes Haus</li>
+                        <li>💡 Viele Geräte (Lampen, Steckdosen, Sensoren)</li>
+                        <li>🤖 Einfache Automatisierungen</li>
+                        <li>📷 Keine Kamera-Livestreams empfohlen</li>
+                        <li>📶 WLAN</li>
+                    </ul>
+                </div>
+                <div class="server-card">
+                    <div class="name">Standard</div>
+                    <div class="price">80 €</div>
+                    <div class="tagline">Für komplexere Automatisierungen und einen gelegentlichen Kamera-Livestream.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis großes Haus</li>
+                        <li>💡 Viele Geräte inkl. Zigbee</li>
+                        <li>🤖 Komplexere Automatisierungen</li>
+                        <li>📷 1 Kamera-Livestream möglich</li>
+                        <li>📶 WLAN + Zigbee (z. B. IKEA, Hue)</li>
+                    </ul>
+                </div>
+                <div class="server-card">
+                    <div class="name">Premium</div>
+                    <div class="price">95 €</div>
+                    <div class="tagline">Für viele gleichzeitige Automatisierungen und 1–2 Kamera-Livestreams parallel.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis großes Haus</li>
+                        <li>💡 Viele Geräte inkl. Zigbee</li>
+                        <li>🤖 Viele Automatisierungen gleichzeitig</li>
+                        <li>📷 1–2 Kamera-Livestreams</li>
+                        <li>📶 WLAN + Zigbee</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-divider">Vergleichstabelle</div>
+            <div class="cmp-table-wrap">
+                <table class="cmp-table gen1-tbl">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="col-accent">Basis<br><span style="font-size:1rem;font-weight:800;color:#2e7d32;">60 €</span></th>
+                            <th class="col-accent">Standard<br><span style="font-size:1rem;font-weight:800;color:#2e7d32;">80 €</span></th>
+                            <th class="col-accent">Premium<br><span style="font-size:1rem;font-weight:800;color:#2e7d32;">95 €</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="row-label">🏠 Haushaltsgröße</td>
+                            <td>Wohnung bis großes Haus</td>
+                            <td>Wohnung bis großes Haus</td>
+                            <td>Wohnung bis großes Haus</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">💡 Geräte</td>
+                            <td>Viele (WLAN)</td>
+                            <td>Viele (WLAN + Zigbee)</td>
+                            <td>Viele (WLAN + Zigbee)</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">🤖 Automatisierungen</td>
+                            <td>Einfache</td>
+                            <td>Komplexe</td>
+                            <td>Viele gleichzeitig</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">📷 Kamera-Livestreams</td>
+                            <td><span class="cross">✗ Nicht empfohlen</span></td>
+                            <td>1 Livestream</td>
+                            <td>1–2 Livestreams</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">📶 WLAN</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">🔵 Zigbee</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">⚡ Geschwindigkeit</td>
+                            <td>Normal</td>
+                            <td>Normal</td>
+                            <td>Normal</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">📦 Verfügbarkeit</td>
+                            <td><span class="check">✓ Verfügbar</span></td>
+                            <td><span class="check">✓ Verfügbar</span></td>
+                            <td><span class="check">✓ Verfügbar</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gen 2 panel -->
+        <div class="gen-panel" id="panelGen2">
+            <div class="section-divider">Übersicht – Karten</div>
+            <div class="server-grid">
+                <div class="server-card gen2">
+                    <span class="badge blue">Neu</span>
+                    <div class="name">Basis</div>
+                    <div class="price">100 €</div>
+                    <div class="tagline">Schneller als Gen1 – flüssige Dashboards und 1–2 Kamera-Livestreams kein Problem.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis großes Haus</li>
+                        <li>💡 Viele Geräte (WLAN)</li>
+                        <li>🤖 Gute Automatisierungen</li>
+                        <li>📷 1–2 Kamera-Livestreams</li>
+                        <li>📶 WLAN</li>
+                    </ul>
+                </div>
+                <div class="server-card gen2">
+                    <span class="badge blue">Neu</span>
+                    <div class="name">Standard</div>
+                    <div class="price">120 €</div>
+                    <div class="tagline">Viele komplexe Automatisierungen gleichzeitig und mehrere Kamera-Livestreams ohne Ruckeln.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis großes Haus</li>
+                        <li>💡 Viele Geräte inkl. Zigbee</li>
+                        <li>🤖 Viele komplexe Automatisierungen</li>
+                        <li>📷 2–3 Kamera-Livestreams</li>
+                        <li>📶 WLAN + Zigbee</li>
+                    </ul>
+                </div>
+                <div class="server-card gen2">
+                    <span class="badge blue">Neu</span>
+                    <div class="name">Premium</div>
+                    <div class="price">150 €</div>
+                    <div class="tagline">Für anspruchsvolle Setups mit sehr vielen Automatisierungen und mehreren Kameras parallel.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis großes Haus</li>
+                        <li>💡 Sehr viele Geräte inkl. Zigbee</li>
+                        <li>🤖 Sehr komplexe Automatisierungen</li>
+                        <li>📷 4–5 Kamera-Livestreams</li>
+                        <li>📶 WLAN + Zigbee</li>
+                    </ul>
+                </div>
+                <div class="server-card gen2">
+                    <span class="badge green">Top</span>
+                    <div class="name">Extreme</div>
+                    <div class="price">200 €</div>
+                    <div class="tagline">Das Kraftpaket – maximale Automatisierungen, viele Kameras gleichzeitig, absolut reibungslos.</div>
+                    <ul class="spec-list">
+                        <li>🏠 Wohnung bis Anwesen</li>
+                        <li>💡 Unbegrenzt viele Geräte inkl. Zigbee</li>
+                        <li>🤖 Maximale Automatisierungen</li>
+                        <li>📷 6+ Kamera-Livestreams</li>
+                        <li>📶 WLAN + Zigbee</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-divider">Vergleichstabelle</div>
+            <div class="cmp-table-wrap">
+                <table class="cmp-table gen2-tbl">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="col-accent">Basis<br><span style="font-size:1rem;font-weight:800;color:#1565c0;">100 €</span></th>
+                            <th class="col-accent">Standard<br><span style="font-size:1rem;font-weight:800;color:#1565c0;">120 €</span></th>
+                            <th class="col-accent">Premium<br><span style="font-size:1rem;font-weight:800;color:#1565c0;">150 €</span></th>
+                            <th class="col-accent">Extreme<br><span style="font-size:1rem;font-weight:800;color:#1565c0;">200 €</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="row-label">🏠 Haushaltsgröße</td>
+                            <td>Wohnung bis großes Haus</td>
+                            <td>Wohnung bis großes Haus</td>
+                            <td>Wohnung bis großes Haus</td>
+                            <td>Wohnung bis Anwesen</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">💡 Geräte</td>
+                            <td>Viele (WLAN)</td>
+                            <td>Viele (WLAN + Zigbee)</td>
+                            <td>Sehr viele (WLAN + Zigbee)</td>
+                            <td>Unbegrenzt (WLAN + Zigbee)</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">🤖 Automatisierungen</td>
+                            <td>Gut</td>
+                            <td>Viele, komplex</td>
+                            <td>Sehr viele, sehr komplex</td>
+                            <td>Maximum</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">📷 Kamera-Livestreams</td>
+                            <td>1–2</td>
+                            <td>2–3</td>
+                            <td>4–5</td>
+                            <td>6+</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">📶 WLAN</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">🔵 Zigbee</td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">⚡ Geschwindigkeit</td>
+                            <td>Schnell</td>
+                            <td>Schnell</td>
+                            <td>Sehr schnell</td>
+                            <td>Sehr schnell</td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">📦 Verfügbarkeit</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Nächste Schritte</h2>
+        <p>Noch unsicher, welcher Server zu Ihnen passt? Nutzen Sie unsere kostenlose Beratung auf der Startseite oder kontaktieren Sie uns direkt.</p>
+        <a class="btn" href="../Contact_us/contact_us.html">Kontakt aufnehmen</a>
+        <a class="btn btn-outline" href="pricing.html">Service-Preise</a>
+    </div>
+
+</div>
+
+<script>
+    function toggleDrawer() {
+        const open = document.getElementById('drawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open', open);
+        document.getElementById('menuBtn').classList.toggle('open', open);
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+        document.getElementById('menuBtn').classList.remove('open');
+    }
+    function switchGen(gen) {
+        document.getElementById('panelGen1').classList.toggle('active', gen === 'gen1');
+        document.getElementById('panelGen2').classList.toggle('active', gen === 'gen2');
+        // Sync radio state for CSS-driven label styling
+        document.getElementById('radioGen1').checked = gen === 'gen1';
+        document.getElementById('radioGen2').checked = gen === 'gen2';
+    }
+</script>
+
+</body>
+</html>

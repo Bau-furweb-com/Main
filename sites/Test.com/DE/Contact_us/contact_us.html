@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontakt – Home Assistant Helper</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+        .navbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; background: #2e7d32; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .navbar .brand { font-size: 1rem; font-weight: 700; color: white; text-decoration: none; }
+        .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; border-radius: 6px; background: none; border: none; transition: background 0.2s; }
+        .hamburger:hover { background: rgba(255,255,255,0.15); }
+        .hamburger span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+        .drawer-overlay.open { display: block; }
+        .drawer { position: fixed; top: 0; right: -280px; width: 260px; height: 100%; background: #fff; z-index: 201; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; padding: 20px; font-size: 1rem; font-weight: 700; }
+        .drawer nav a { display: flex; align-items: center; gap: 12px; padding: 15px 20px; text-decoration: none; color: #333; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        .drawer nav a:hover { background: #f5fdf5; color: #2e7d32; }
+        .drawer nav a .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .drawer nav a.active { color: #2e7d32; font-weight: 600; }
+        .page { max-width: 720px; margin: 32px auto; padding: 0 16px 60px; }
+        .hero { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; border-radius: 12px; padding: 44px 32px; text-align: center; margin-bottom: 24px; }
+        .hero h1 { font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin-top: 10px; opacity: 0.88; font-size: 1rem; }
+        .card { background: #fff; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+        .card h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 12px; }
+        .card p { font-size: 0.95rem; line-height: 1.7; color: #444; }
+        .checklist { list-style: none; margin-top: 10px; }
+        .checklist li { padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.95rem; color: #444; display: flex; gap: 10px; align-items: flex-start; }
+        .checklist li::before { content: "✓"; color: #43a047; font-weight: 700; flex-shrink: 0; }
+        .email-block { display: flex; align-items: center; gap: 14px; background: #f3f9f3; border: 1px solid #a5d6a7; border-radius: 10px; padding: 16px 20px; margin-top: 8px; }
+        .email-block .mail-icon { font-size: 1.6rem; }
+        .email-block a { color: #2e7d32; font-weight: 600; font-size: 0.95rem; text-decoration: none; word-break: break-all; }
+        .email-block a:hover { text-decoration: underline; }
+        .response-note { font-size: 0.85rem; color: #888; margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a class="brand" href="../homepage.html">🏠 Home Assistant Helper</a>
+    <button class="hamburger" id="menuBtn" onclick="toggleDrawer()" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+    </button>
+</div>
+<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">Menü</div>
+    <nav>
+        <a href="../homepage.html"><span class="icon">🏠</span> Startseite</a>
+        <a href="../Pricing/pricing.html"><span class="icon">💶</span> Preise</a>
+        <a href="../Pricing/server-pricing.html"><span class="icon">🖥️</span> Serverpreise</a>
+        <a href="../Pricing/our-service-regions.html"><span class="icon">📍</span> Serviceregionen</a>
+        <a href="../Manual/setup_manual.html"><span class="icon">📖</span> Anleitung</a>
+        <a href="../about-me.html"><span class="icon">👤</span> Über mich</a>
+        <a href="contact_us.html" class="active"><span class="icon">✉️</span> Kontakt</a>
+        <a href="../faq.html"><span class="icon">❓</span> FAQ</a>
+    </nav>
+</div>
+
+<div class="page">
+    <div class="hero">
+        <h1>Kontakt</h1>
+        <p>Wir helfen Ihnen gerne weiter – melden Sie sich jederzeit.</p>
+    </div>
+
+    <div class="card">
+        <h2>Was in Ihrer E-Mail enthalten sein sollte</h2>
+        <p>Bitte geben Sie folgende Informationen an, damit wir Ihnen schnell und effizient helfen können:</p>
+        <ul class="checklist">
+            <li>Ihren vollständigen Namen</li>
+            <li>Ihre Adresse (Straße &amp; Hausnummer)</li>
+            <li>Das gewünschte Produkt oder die gewünschte Dienstleistung</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Unsere E-Mail-Adresse</h2>
+        <div class="email-block">
+            <span class="mail-icon">✉️</span>
+            <a href="mailto:Fynnoberwagner+SmartesWohnen@gmail.com">Fynnoberwagner+SmartesWohnen@gmail.com</a>
+        </div>
+        <p class="response-note">Wir antworten so schnell wie möglich auf Ihre Anfrage.</p>
+    </div>
+</div>
+
+<script>
+    function toggleDrawer() {
+        const open = document.getElementById('drawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open', open);
+        document.getElementById('menuBtn').classList.toggle('open', open);
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+        document.getElementById('menuBtn').classList.remove('open');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Assistant Geräte-Einrichtungsanleitung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        section {
+            margin-top: 20px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <script>
+        function redirectToManual() {
+            // Get the customer ID from the input
+            var customerId = document.getElementById('customerId').value;
+
+            // Extract the last two digits of the customer ID
+            var lastTwoDigits = customerId.slice(-2);
+
+            // Define an object to map the redirection URLs based on the last two digits for German
+            var redirectionMap = {
+                '11': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_11.html',
+                '12': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_12.html',
+                '13': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_13.html',
+                '14': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_14.html',
+                '21': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_21.html',
+                '22': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_22.html',
+                '23': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_23.html',
+                '24': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_24.html',
+                '31': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_31.html',
+                '32': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_32.html',
+                '33': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_33.html',
+                '34': 'https://homeassistanthelper.github.io/WEBSITE/DE/Manual/manual_34.html',
+                // Add more mappings as needed
+            };
+
+            // Get the redirection URL based on the last two digits
+            var redirectionUrl = redirectionMap[lastTwoDigits];
+
+            // Redirect to the specified URL
+            if (redirectionUrl) {
+                window.location.href = redirectionUrl;
+            } else {
+                alert('Invalid customer ID');
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <h1>Home Assistant Geräte-Einrichtungsanleitung</h1>
+    </header>
+
+    <section>
+        <h2>Geben Sie Ihre Kundennummer ein</h2>
+        <p>Bitte geben Sie Ihre Kundennummer ein, um auf die Einrichtungsanleitung zuzugreifen:</p>
+        <input type="text" id="customerId" placeholder="Kundennummer">
+        <button onclick="redirectToManual()">Los</button>
+    </section>
+
+    <button onclick="window.location.href='/WEBSITE/DE/homepage'">homepage</button>
+
+</body>
+</html>

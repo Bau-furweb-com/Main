@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preise – Home Assistant Helper</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+        .navbar { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; background: #2e7d32; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+        .navbar .brand { font-size: 1rem; font-weight: 700; color: white; text-decoration: none; }
+        .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; border-radius: 6px; background: none; border: none; transition: background 0.2s; }
+        .hamburger:hover { background: rgba(255,255,255,0.15); }
+        .hamburger span { display: block; width: 24px; height: 2px; background: white; border-radius: 2px; transition: transform 0.3s, opacity 0.3s; }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; }
+        .drawer-overlay.open { display: block; }
+        .drawer { position: fixed; top: 0; right: -280px; width: 260px; height: 100%; background: #fff; z-index: 201; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; padding: 20px; font-size: 1rem; font-weight: 700; }
+        .drawer nav a { display: flex; align-items: center; gap: 12px; padding: 15px 20px; text-decoration: none; color: #333; font-size: 0.95rem; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        .drawer nav a:hover { background: #f5fdf5; color: #2e7d32; }
+        .drawer nav a .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .drawer nav a.active { color: #2e7d32; font-weight: 600; }
+        .page { max-width: 720px; margin: 32px auto; padding: 0 16px 60px; }
+        .hero { background: linear-gradient(135deg, #43a047, #2e7d32); color: white; border-radius: 12px; padding: 44px 32px; text-align: center; margin-bottom: 24px; }
+        .hero h1 { font-size: 1.9rem; font-weight: 700; }
+        .hero p { margin-top: 10px; opacity: 0.88; font-size: 1rem; }
+        .card { background: #fff; border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; border: 1px solid #e8e8e8; }
+        .card h2 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 16px; }
+        .card p { font-size: 0.9rem; line-height: 1.7; color: #444; }
+        .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+        .price-item { border: 1px solid #e8e8e8; border-radius: 10px; padding: 18px; background: #fafafa; transition: box-shadow 0.2s, border-color 0.2s; }
+        .price-item:hover { box-shadow: 0 4px 16px rgba(67,160,71,0.12); border-color: #a5d6a7; }
+        .price-item .name { font-weight: 700; font-size: 1rem; color: #222; }
+        .price-item .amount { font-size: 1.4rem; font-weight: 800; color: #2e7d32; margin: 6px 0; }
+        .price-item .desc { font-size: 0.82rem; color: #777; line-height: 1.5; }
+        .note { font-size: 0.8rem; color: #999; margin-top: 12px; }
+        .btn { display: inline-block; margin-top: 16px; padding: 11px 24px; background: #43a047; color: white; text-decoration: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: background 0.2s; }
+        .btn:hover { background: #388e3c; }
+        .btn-outline { background: transparent; border: 2px solid #43a047; color: #43a047; margin-left: 10px; }
+        .btn-outline:hover { background: #f3f9f3; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a class="brand" href="../homepage.html">🏠 Home Assistant Helper</a>
+    <button class="hamburger" id="menuBtn" onclick="toggleDrawer()" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+    </button>
+</div>
+<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">Menü</div>
+    <nav>
+        <a href="../homepage.html"><span class="icon">🏠</span> Startseite</a>
+        <a href="pricing.html" class="active"><span class="icon">💶</span> Preise</a>
+        <a href="server-pricing.html"><span class="icon">🖥️</span> Serverpreise</a>
+        <a href="our-service-regions.html"><span class="icon">📍</span> Serviceregionen</a>
+        <a href="../Manual/setup_manual.html"><span class="icon">📖</span> Anleitung</a>
+        <a href="../about-me.html"><span class="icon">👤</span> Über mich</a>
+        <a href="../Contact_us/contact_us.html"><span class="icon">✉️</span> Kontakt</a>
+        <a href="../faq.html"><span class="icon">❓</span> FAQ</a>
+    </nav>
+</div>
+
+<div class="page">
+    <div class="hero">
+        <h1>Unsere Preise</h1>
+        <p>Wählen Sie den Plan, der Ihren Anforderungen entspricht.</p>
+    </div>
+
+    <div class="card">
+        <h2>Service-Pakete</h2>
+        <div class="price-grid">
+            <div class="price-item">
+                <div class="name">Basic</div>
+                <div class="amount">25 €</div>
+                <div class="desc">Servereinrichtung + funktionierende Website</div>
+            </div>
+            <div class="price-item">
+                <div class="name">Standard</div>
+                <div class="amount">40 €</div>
+                <div class="desc">Basic + Einrichtung von 20 Geräten</div>
+            </div>
+            <div class="price-item">
+                <div class="name">Premium</div>
+                <div class="amount">60 €</div>
+                <div class="desc">Standard + 10 Automatisierungen</div>
+            </div>
+            <div class="price-item">
+                <div class="name">Mega</div>
+                <div class="amount">100 €</div>
+                <div class="desc">Premium + 10 Automatisierungen + Integrationen + 5 Dashboards¹ + Hilfe</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Einzelleistungen</h2>
+        <div class="price-grid">
+            <div class="price-item">
+                <div class="name">Dashboard</div>
+                <div class="amount">10 €</div>
+                <div class="desc">5 Dashboards¹</div>
+            </div>
+            <div class="price-item">
+                <div class="name">Geräteeinrichtung</div>
+                <div class="amount">15 €</div>
+                <div class="desc">Einrichtung von 15 Geräten</div>
+            </div>
+            <div class="price-item">
+                <div class="name">Schwirege Dashboard Card</div>
+                <div class="amount">10–50 €</div>
+                <div class="desc">Grundrisskarte u. mehr</div>
+            </div>
+            <div class="price-item">
+                <div class="name">Hilfe</div>
+                <div class="amount">60 €</div>
+                <div class="desc">Fragen, und simple Probleme werden 1 Jahr lang, remote beantwortet</div>
+            </div>
+        </div>
+        <p class="note">¹ Nur einfache Karten &nbsp;|&nbsp; ² Preis abhängig von Haus und Karte &nbsp;|&nbsp; Serverpreis nicht enthalten</p>
+    </div>
+
+    <div class="card">
+        <h2>Jetzt starten</h2>
+        <p>Bereit, Ihr Zuhause intelligenter zu machen? Kontaktieren Sie uns für eine persönliche Beratung.</p>
+        <a class="btn" href="../Contact_us/contact_us.html">Kontakt aufnehmen</a>
+        <a class="btn btn-outline" href="server-pricing.html">Serverpreise ansehen</a>
+    </div>
+</div>
+
+<script>
+    function toggleDrawer() {
+        const open = document.getElementById('drawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open', open);
+        document.getElementById('menuBtn').classList.toggle('open', open);
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+        document.getElementById('menuBtn').classList.remove('open');
+    }
+</script>
+
+</body>
+</html>

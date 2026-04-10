@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Willkommen – Home Assistant Helper</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 56px;
+            background: #2e7d32;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        }
+        .navbar .brand {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: white;
+            text-decoration: none;
+        }
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            background: none;
+            border: none;
+        }
+        .hamburger:hover { background: rgba(255,255,255,0.15); }
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: white;
+            border-radius: 2px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ── Drawer ── */
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+        }
+        .drawer-overlay.open { display: block; }
+        .drawer {
+            position: fixed;
+            top: 0; right: -280px;
+            width: 260px;
+            height: 100%;
+            background: #fff;
+            z-index: 201;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .drawer.open { right: 0; }
+        .drawer-header {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+            color: white;
+            padding: 20px;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .drawer nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+        }
+        .drawer nav a:hover { background: #f5fdf5; color: #2e7d32; }
+        .drawer nav a .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .drawer nav a.active { color: #2e7d32; font-weight: 600; }
+
+        /* ── Page content ── */
+        .page {
+            max-width: 720px;
+            margin: 32px auto;
+            padding: 0 16px 60px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+            color: white;
+            border-radius: 12px;
+            padding: 44px 32px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .hero h1 { font-size: 1.9rem; font-weight: 700; line-height: 1.25; }
+        .hero p  { margin-top: 10px; opacity: 0.88; font-size: 1rem; }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 16px;
+            border: 1px solid #e8e8e8;
+        }
+        .card h2 {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        .card p { font-size: 0.95rem; line-height: 1.7; color: #444; }
+        .card p + p { margin-top: 8px; }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 10px;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 0.95rem;
+            color: #444;
+            display: flex;
+            gap: 10px;
+        }
+        .feature-list li::before { content: "✓"; color: #43a047; font-weight: 700; }
+
+        .btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 11px 24px;
+            background: #43a047;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #388e3c; }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #43a047;
+            color: #43a047;
+            margin-left: 10px;
+        }
+        .btn-outline:hover { background: #f3f9f3; }
+
+        /* ── Reviews ── */
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 4px;
+        }
+        .review-item {
+            background: #f8fdf8;
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 16px 18px;
+        }
+        .review-stars { color: #f9a825; font-size: 1.1rem; letter-spacing: 2px; margin-bottom: 8px; }
+        .review-text { font-size: 0.88rem; color: #444; line-height: 1.6; font-style: italic; }
+        .review-author { margin-top: 10px; font-size: 0.8rem; font-weight: 700; color: #2e7d32; }
+
+        /* ── Quiz ── */
+        .quiz-step { display: none; }
+        .quiz-step.active { display: block; }
+        .quiz-question { font-size: 1rem; font-weight: 600; color: #222; margin-bottom: 14px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.93rem;
+            color: #333;
+            transition: border-color 0.2s, background 0.2s;
+            background: #fafafa;
+            user-select: none;
+        }
+        .quiz-option:hover { border-color: #a5d6a7; background: #f3faf3; }
+        .quiz-option input[type=radio] { accent-color: #43a047; width: 16px; height: 16px; flex-shrink: 0; }
+        .quiz-nav { display: flex; gap: 10px; margin-top: 18px; }
+        .quiz-btn { padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s; }
+        .quiz-btn-primary { background: #43a047; color: white; }
+        .quiz-btn-primary:hover { background: #388e3c; }
+        .quiz-btn-secondary { background: #e8e8e8; color: #555; }
+        .quiz-btn-secondary:hover { background: #d5d5d5; }
+        .quiz-progress { display: flex; gap: 6px; margin-bottom: 20px; }
+        .quiz-dot { width: 8px; height: 8px; border-radius: 50%; background: #d5d5d5; transition: background 0.3s; }
+        .quiz-dot.done { background: #43a047; }
+        .quiz-result { display: none; }
+        .quiz-result.active { display: block; }
+        .result-box { border: 2px solid #a5d6a7; border-radius: 10px; padding: 20px; background: #f3faf3; }
+        .result-box .result-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 10px; }
+        .result-box .result-plan { font-size: 1.15rem; font-weight: 800; color: #2e7d32; }
+        .result-box .result-server { font-size: 0.95rem; color: #444; margin-top: 4px; }
+        .result-box .result-note { font-size: 0.82rem; color: #777; margin-top: 10px; line-height: 1.5; }
+        .quiz-restart { background: none; border: none; color: #43a047; font-size: 0.85rem; cursor: pointer; margin-top: 12px; text-decoration: underline; }
+
+        /* ── Email preview ── */
+        .email-preview-box {
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .email-preview-header {
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 14px;
+            font-size: 0.78rem;
+            color: #666;
+        }
+        .email-preview-header span { font-weight: 700; color: #333; }
+        .email-preview-body {
+            padding: 14px;
+            font-size: 0.85rem;
+            color: #444;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .email-send-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 12px 22px;
+            background: #43a047;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: background 0.2s;
+            width: fit-content;
+        }
+        .email-send-btn:hover { background: #388e3c; }
+
+        @media (max-width: 480px) {
+            .hero { padding: 32px 20px; }
+            .hero h1 { font-size: 1.5rem; }
+            .card { padding: 20px; }
+            .review-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a class="brand" href="homepage.html">🏠 Home Assistant Helper</a>
+    <button class="hamburger" id="menuBtn" onclick="toggleDrawer()" aria-label="Menü öffnen">
+        <span></span><span></span><span></span>
+    </button>
+</div>
+
+<!-- Drawer -->
+<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+    <div class="drawer-header">Menü</div>
+    <nav>
+        <a href="homepage.html" class="active"><span class="icon">🏠</span> Startseite</a>
+        <a href="Pricing/pricing.html"><span class="icon">💶</span> Preise</a>
+        <a href="Pricing/server-pricing.html"><span class="icon">🖥️</span> Serverpreise</a>
+        <a href="Pricing/our-service-regions.html"><span class="icon">📍</span> Serviceregionen</a>
+        <a href="Manual/setup_manual.html"><span class="icon">📖</span> Anleitung</a>
+        <a href="about-me.html"><span class="icon">👤</span> Über mich</a>
+        <a href="Contact_us/contact_us.html"><span class="icon">✉️</span> Kontakt</a>
+        <a href="faq.html"><span class="icon">❓</span> FAQ</a>
+    </nav>
+</div>
+
+<!-- Content -->
+<div class="page">
+
+    <div class="hero">
+        <h1>Willkommen bei<br>Home Assistant Helper</h1>
+        <p>Stärken Sie Ihr Smart-Home-Erlebnis – einfach, erschwinglich, zuverlässig.</p>
+        <a class="btn" href="Contact_us/contact_us.html" style="margin-top:20px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.6);">Jetzt kontaktieren</a>
+    </div>
+
+    <div class="card">
+        <h2>Was wir anbieten</h2>
+        <p>Wir sind darauf spezialisiert, Einzelpersonen und Familien beim Einrichten und Optimieren von Home Assistant zu unterstützen – für ein nahtloses Smart-Home-Erlebnis.</p>
+        <ul class="feature-list">
+            <li>Professionelle Servereinrichtung & Konfiguration</li>
+            <li>Geräteintegration & Automatisierungen</li>
+            <li>Individuelle Dashboards für Ihr Zuhause</li>
+            <li>Persönlicher Support & Beratung</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Warum uns wählen?</h2>
+        <p>Maßgeschneiderte Lösungen, die auf Ihre speziellen Bedürfnisse und Vorlieben zugeschnitten sind.</p>
+        <p>Erschwingliche Preise mit flexiblen Servicepaketen für jedes Budget.</p>
+        <a class="btn" href="Pricing/pricing.html">Preise ansehen</a>
+        <a class="btn btn-outline" href="about-me.html">Über mich</a>
+    </div>
+
+    <!-- ── Kundenbewertungen ── -->
+    <div class="card">
+        <h2>Kundenbewertungen</h2>
+        <div class="review-grid">
+            <div class="review-item">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-text">„Fynn hat meinen Home Assistant perfekt eingerichtet. Alles funktioniert auf Anhieb und die Automatisierungen sind genau das, was ich mir vorgestellt habe!"</div>
+                <div class="review-author">— Thomas K.</div>
+            </div>
+            <div class="review-item">
+                <div class="review-stars">★★★★★</div>
+                <div class="review-text">„Sehr zuverlässig und günstig. Das Dashboard sieht super aus und meine Familie kann es problemlos benutzen. Klare Weiterempfehlung!"</div>
+                <div class="review-author">— Sandra M.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Kostenlose Beratung ── -->
+    <div class="card">
+        <h2>Kostenlose Beratung – Was passt zu mir?</h2>
+        <p style="margin-bottom:18px;">Beantworten Sie 3 kurze Fragen und wir empfehlen Ihnen den passenden Plan &amp; Server.</p>
+
+        <div class="quiz-progress">
+            <div class="quiz-dot done" id="dot0"></div>
+            <div class="quiz-dot" id="dot1"></div>
+            <div class="quiz-dot" id="dot2"></div>
+        </div>
+
+        <!-- Schritt 1 -->
+        <div class="quiz-step active" id="step0">
+            <div class="quiz-question">Wie viele Smart-Home-Geräte haben Sie (oder planen Sie)?</div>
+            <div class="quiz-options">
+                <label class="quiz-option"><input type="radio" name="q0" value="few"> Wenige (1–5 Geräte)</label>
+                <label class="quiz-option"><input type="radio" name="q0" value="mid"> Mittel (6–20 Geräte)</label>
+                <label class="quiz-option"><input type="radio" name="q0" value="many"> Viele (mehr als 20 Geräte)</label>
+            </div>
+            <div class="quiz-nav">
+                <button class="quiz-btn quiz-btn-primary" onclick="quizNext(0)">Weiter →</button>
+            </div>
+        </div>
+
+        <!-- Schritt 2 -->
+        <div class="quiz-step" id="step1">
+            <div class="quiz-question">Möchten Sie Automatisierungen einrichten?</div>
+            <div class="quiz-options">
+                <label class="quiz-option"><input type="radio" name="q1" value="no"> Nein, nur Geräte steuern</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="some"> Ja, ein paar einfache</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="many"> Ja, viele komplexe</label>
+            </div>
+            <div class="quiz-nav">
+                <button class="quiz-btn quiz-btn-secondary" onclick="quizBack(1)">← Zurück</button>
+                <button class="quiz-btn quiz-btn-primary" onclick="quizNext(1)">Weiter →</button>
+            </div>
+        </div>
+
+        <!-- Schritt 3 -->
+        <div class="quiz-step" id="step2">
+            <div class="quiz-question">Benötigen Sie Zigbee- oder Z-Wave-Unterstützung?</div>
+            <div class="quiz-options">
+                <label class="quiz-option"><input type="radio" name="q2" value="none"> Nein, nur WLAN-Geräte</label>
+                <label class="quiz-option"><input type="radio" name="q2" value="zigbee"> Ja, Zigbee</label>
+                <label class="quiz-option"><input type="radio" name="q2" value="zwave"> Ja, Z-Wave (oder beides)</label>
+            </div>
+            <div class="quiz-nav">
+                <button class="quiz-btn quiz-btn-secondary" onclick="quizBack(2)">← Zurück</button>
+                <button class="quiz-btn quiz-btn-primary" onclick="quizCalc()">Ergebnis anzeigen ✓</button>
+            </div>
+        </div>
+
+        <!-- Ergebnis mit E-Mail -->
+        <div class="quiz-result" id="quizResult">
+            <div class="result-box" style="border:2px solid #a5d6a7; border-radius:10px; padding:16px 18px; background:#f3faf3; margin-bottom:14px;">
+                <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.8px; color:#888; margin-bottom:8px;">Ihre Empfehlung</div>
+                <div id="resultPlan" style="font-size:1.1rem; font-weight:800; color:#2e7d32;"></div>
+                <div id="resultServer" style="font-size:0.92rem; color:#444; margin-top:4px;"></div>
+                <div id="resultNote" style="font-size:0.82rem; color:#777; margin-top:8px; line-height:1.5;"></div>
+            </div>
+
+            <div style="font-size:0.82rem; color:#888; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.7px;">Vorschau Ihrer Anfrage-E-Mail</div>
+            <div class="email-preview-box">
+                <div class="email-preview-header">
+                    An: <span>Fynnoberwagner+SmartesWohnen@gmail.com</span> &nbsp;|&nbsp;
+                    Betreff: <span>Beratungsanfrage – Home Assistant Helper</span>
+                </div>
+                <div class="email-preview-body" id="emailPreviewBody"></div>
+            </div>
+
+            <a class="email-send-btn" id="emailLink" href="#">
+                ✉️ E-Mail öffnen &amp; senden
+            </a>
+            <br><button class="quiz-restart" onclick="quizReset()">↺ Neu starten</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function toggleDrawer() {
+        const open = document.getElementById('drawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open', open);
+        document.getElementById('menuBtn').classList.toggle('open', open);
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.remove('open');
+        document.getElementById('overlay').classList.remove('open');
+        document.getElementById('menuBtn').classList.remove('open');
+    }
+
+    /* ── Quiz ── */
+    function quizNext(step) {
+        const chosen = document.querySelector(`input[name="q${step}"]:checked`);
+        if (!chosen) { alert('Bitte wählen Sie eine Option aus.'); return; }
+        document.getElementById(`step${step}`).classList.remove('active');
+        document.getElementById(`step${step + 1}`).classList.add('active');
+        document.getElementById(`dot${step + 1}`).classList.add('done');
+    }
+    function quizBack(step) {
+        document.getElementById(`step${step}`).classList.remove('active');
+        document.getElementById(`step${step - 1}`).classList.add('active');
+        document.getElementById(`dot${step}`).classList.remove('done');
+    }
+    function quizCalc() {
+        const chosen = document.querySelector(`input[name="q2"]:checked`);
+        if (!chosen) { alert('Bitte wählen Sie eine Option aus.'); return; }
+
+        const devices  = document.querySelector('input[name="q0"]:checked').value;
+        const automate = document.querySelector('input[name="q1"]:checked').value;
+        const protocol = document.querySelector('input[name="q2"]:checked').value;
+
+        // Labels
+        const deviceLabel  = {few:'Wenige (1–5)', mid:'Mittel (6–20)', many:'Viele (mehr als 20)'}[devices];
+        const autoLabel    = {no:'Nein', some:'Ja, ein paar einfache', many:'Ja, viele komplexe'}[automate];
+        const protocolLabel= {none:'Nur WLAN', zigbee:'Zigbee', zwave:'Z-Wave / beides'}[protocol];
+
+        // Recommend plan
+        let plan, planNote;
+        if (devices === 'few' && automate === 'no') {
+            plan = 'Basic (25 €)';
+            planNote = 'Ideal für den Einstieg: Servereinrichtung und eine funktionierende Oberfläche.';
+        } else if (devices === 'mid' && automate !== 'many') {
+            plan = 'Standard (40 €)';
+            planNote = 'Perfekt für mittlere Setups: Einrichtung von bis zu 20 Geräten inklusive.';
+        } else if (automate === 'many' || devices === 'many') {
+            plan = 'Mega (100 €)';
+            planNote = 'Das Rundum-sorglos-Paket: viele Automatisierungen, Dashboards, Integrationen und persönliche Hilfe.';
+        } else {
+            plan = 'Premium (60 €)';
+            planNote = 'Für ambitionierte Nutzer: Standard plus 10 Automatisierungen.';
+        }
+
+        // Recommend server
+        let server, serverLabel;
+        if (protocol === 'zwave') {
+            serverLabel = 'Premium-Server (130 €) – WLAN, Zigbee, Z-Wave (aktuell ausverkauft, bitte anfragen)';
+        } else if (protocol === 'zigbee') {
+            serverLabel = 'Standard-Server (95 €) – WLAN + Zigbee';
+        } else {
+            serverLabel = 'Basis-Server (80 €) – WLAN';
+        }
+
+        // Show recommendation summary
+        document.getElementById('resultPlan').textContent    = '📦 Empfohlener Plan: ' + plan;
+        document.getElementById('resultServer').textContent  = '🖥️ Empfohlener Server: ' + serverLabel;
+        document.getElementById('resultNote').textContent    = planNote;
+
+        // Build email body
+        const emailBody =
+`Guten Tag,
+
+ich habe Ihren Beratungsfragebogen auf der Website ausgefüllt und würde gerne eine Anfrage stellen.
+
+──────────────────────────
+Meine Angaben:
+──────────────────────────
+Geräteanzahl:      ${deviceLabel}
+Automatisierungen: ${autoLabel}
+Protokollbedarf:   ${protocolLabel}
+
+──────────────────────────
+Empfehlung der Website:
+──────────────────────────
+Plan:   ${plan}
+Server: ${serverLabel}
+
+Ich bin an diesem Angebot interessiert. Bitte melden Sie sich bei mir, damit wir alles Weitere besprechen können.
+
+Mit freundlichen Grüßen,
+[Ihr Name]`;
+
+        document.getElementById('emailPreviewBody').textContent = emailBody;
+
+        // Build mailto link
+        const subject = encodeURIComponent('Beratungsanfrage – Home Assistant Helper');
+        const body    = encodeURIComponent(emailBody);
+        document.getElementById('emailLink').href =
+            `mailto:Fynnoberwagner+SmartesWohnen@gmail.com?subject=${subject}&body=${body}`;
+
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('quizResult').classList.add('active');
+    }
+    function quizReset() {
+        ['q0','q1','q2'].forEach(n => {
+            const r = document.querySelector(`input[name="${n}"]:checked`);
+            if (r) r.checked = false;
+        });
+        document.getElementById('quizResult').classList.remove('active');
+        [1,2].forEach(i => document.getElementById(`dot${i}`).classList.remove('done'));
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step0').classList.add('active');
+    }
+</script>
+
+</body>
+</html>

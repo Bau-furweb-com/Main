@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="legal_h1_datenschutz">Datenschutz</title>
+  <meta name="description" content="Datenschutz der fiktiven Brasserie Havelblick Webseite.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="legal">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">Brasserie Havelblick</a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+      <div class="header-right">
+        <div class="lang-switch" aria-label="Language switch">
+          <button type="button" data-lang="de" class="active">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="cta-call" href="tel:+49XXXXXXXXX" data-i18n="cta_call">Reservierung: +49 XXX XXXXX</a>
+      </div>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span class="menu-toggle-lines"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-overlay" aria-hidden="true">
+    <div class="mobile-panel">
+      <nav class="mobile-nav" aria-label="Mobile navigation">
+        <a href="index.html" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+      <div class="lang-switch" aria-label="Language switch">
+        <button type="button" data-lang="de" class="active">DE</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <a class="cta-call" href="tel:+49XXXXXXXXX" data-i18n="cta_call_short">Anrufen</a>
+    </div>
+  </div>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        <article class="card reveal legal-card">
+          <h1 data-i18n="legal_h1_datenschutz">Datenschutz</h1>
+          <p>Personenbezogene Daten werden nur im erforderlichen Umfang zur Bearbeitung von Reservierungsanfragen verarbeitet.</p>
+          <p data-i18n="legal_owner">Website-Inhaber und Rechteinhaber: Brasserie Havelblick Demo GmbH</p>
+          <p><strong data-i18n="legal_email_label">Legal E-Mail</strong>: <a href="mailto:kontakt@bau.furweb.com" data-i18n="legal_email_value">kontakt@bau.furweb.com</a></p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p data-i18n="footer_note">Demo-Informationen fuer eine fiktive Berliner Brasserie.</p>
+      <p class="footer-links"><a href="https://bau.furweb.com/impressum.html" data-i18n="footer_impressum">Impressum</a> | <a href="https://bau.furweb.com/datenschutz.html" data-i18n="footer_datenschutz">Datenschutz</a></p>
+      <p>&copy; <span data-year></span> Brasserie Havelblick. <span data-i18n="footer_rights">haelt das Copyright an dieser Website.</span></p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="hero_title">Brasserie Havelblick</title>
+  <meta name="description" content="Brasserie Havelblick in Berlin: fiktive Brasserie mit moderner deutscher Kuche und entspannter Atmosphaere.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="home">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">Brasserie Havelblick</a>
+
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html" data-page-link="home" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-page-link="menu" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-page-link="blog" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-page-link="gallery" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+
+      <div class="header-right">
+        <div class="lang-switch" aria-label="Language switch">
+          <button type="button" data-lang="de" class="active">DE</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="cta-call" href="tel:+49XXXXXXXXX" data-i18n="cta_call">Reservierung: +49 XXX XXXXX</a>
+      </div>
+
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <span class="menu-toggle-lines"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-overlay" aria-hidden="true">
+    <div class="mobile-panel">
+      <nav class="mobile-nav" aria-label="Mobile navigation">
+        <a href="index.html" data-page-link="home" data-i18n="nav_home">Startseite</a>
+        <a href="menu.html" data-page-link="menu" data-i18n="nav_menu">Speisekarte</a>
+        <a href="blog.html" data-page-link="blog" data-i18n="nav_blog">Blog</a>
+        <a href="gallery.html" data-page-link="gallery" data-i18n="nav_gallery">Galerie</a>
+      </nav>
+      <div class="lang-switch" aria-label="Language switch">
+        <button type="button" data-lang="de" class="active">DE</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <a class="cta-call" href="tel:+49XXXXXXXXX" data-i18n="cta_call_short">Anrufen</a>
+    </div>
+  </div>
+
+  <main>
+    <section class="hero section">
+      <div class="container">
+        <div class="hero-shell reveal">
+          <article class="hero-card">
+            <p class="kicker" data-i18n="hero_kicker">Feine deutsche Kuche in Berlin</p>
+            <h1 data-i18n="hero_title">Brasserie Havelblick</h1>
+            <p data-i18n="hero_text">Ein eleganter Ort fur lange Abende, klassische Handwerkskuche und ausgesuchte Biere.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="menu.html" data-i18n="hero_cta_menu">Speisekarte ansehen</a>
+              <a class="btn btn-secondary" href="tel:+49XXXXXXXXX" data-i18n="hero_cta_phone">Telefonische Reservierung</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <header class="section-head reveal">
+          <h2 data-i18n="top_title">Top-Gerichte</h2>
+          <p data-i18n="top_desc">Empfohlene Klassiker aus der Kuche.</p>
+        </header>
+
+        <div class="grid grid-3">
+          <article class="card top-item reveal">
+            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80" alt="Beef tenderloin">
+            <h3 data-i18n="top_item_1">Rinderfilet mit Truffeljus</h3>
+            <p data-i18n="top_item_1_desc">Mit Selleriepuree und glasierten Schalotten.</p>
+          </article>
+          <article class="card top-item reveal">
+            <img src="https://images.unsplash.com/photo-1559847844-d721426d6edc?auto=format&fit=crop&w=1200&q=80" alt="Pike perch">
+            <h3 data-i18n="top_item_2">Zander auf Safran-Risotto</h3>
+            <p data-i18n="top_item_2_desc">Leicht, elegant und perfekt fur den Abend.</p>
+          </article>
+          <article class="card top-item reveal">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80" alt="Veal schnitzel">
+            <h3 data-i18n="top_item_3">Wiener Kalbsschnitzel</h3>
+            <p data-i18n="top_item_3_desc">Goldbraun gebacken mit Kartoffel-Gurkensalat.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <header class="section-head reveal">
+          <h2 data-i18n="reviews_title">Gastebewertungen</h2>
+        </header>
+        <article class="reveal review-summary">
+          <p class="rating">★★★★☆</p>
+          <p data-i18n="rating_value">4.4 von 5</p>
+          <p class="meta" data-i18n="rating_count">585 Google-Bewertungen</p>
+        </article>
+        <div class="grid grid-3">
+          <article class="card reveal">
+            <p class="rating">★★★★★</p>
+            <p data-i18n="review_1">Groartige Kuche und ein Service, der jeden Abend besonders macht.</p>
+          </article>
+          <article class="card reveal">
+            <p class="rating">★★★★★</p>
+            <p data-i18n="review_2">Die Abendkarte ist hervorragend abgestimmt und die Bierempfehlungen passen perfekt.</p>
+          </article>
+          <article class="card reveal">
+            <p class="rating">★★★★★</p>
+            <p data-i18n="review_3">Sehr stilvolles Ambiente fur ein ruhiges Dinner.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-strip section">
+      <div class="container">
+        <header class="section-head reveal">
+          <h2 data-i18n="contact_title">Kontakt & Reservierung</h2>
+          <p data-i18n="contact_sub">Reservierungen sind ausschliesslich telefonisch moglich.</p>
+        </header>
+
+        <div class="contact-strip-inner">
+            <article class="contact-chip reveal">
+            <strong data-i18n="contact_address_label">Adresse</strong>
+            <a href="https://www.google.com/maps/search/?api=1&query=YourStreet+12,+10115+Berlin" target="_blank" rel="noopener" data-i18n="contact_address">YourStreet 12, 10115 Berlin</a>
+          </article>
+          <article class="contact-chip reveal">
+            <strong data-i18n="contact_phone_label">Telefon</strong>
+            <a href="tel:+49XXXXXXXXX" data-i18n="contact_phone">+49 XXX XXXXX</a>
+          </article>
+          <article class="contact-chip reveal">
+            <strong data-i18n="contact_hours_label">Offnungszeiten</strong>
+            <span data-i18n="contact_hours">Taeglich: 17:00-23:00</span>
+          </article>
+        </div>
+
+        <p class="notice-phone reveal" data-i18n="notice_phone">Bitte fur Reservierungen anrufen. Keine Online-Reservierung.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p data-i18n="footer_note">Demo-Informationen fuer eine fiktive Berliner Brasserie.</p>
+      <p class="footer-links"><a href="https://bau.furweb.com/impressum.html" data-i18n="footer_impressum">Impressum</a> | <a href="https://bau.furweb.com/datenschutz.html" data-i18n="footer_datenschutz">Datenschutz</a></p>
+      <p>&copy; <span data-year></span> Brasserie Havelblick. <span data-i18n="footer_rights">Alle Rechte vorbehalten.</span></p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

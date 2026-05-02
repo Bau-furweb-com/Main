@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="de" id="html-03-00000">
+  <head id="head-03-00001">
+    <meta charset="UTF-8"  id="meta-03-00002" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"  id="meta-03-00003" />
+    <title id="title-03-00004">Restaurant Lindenhof | Bewertungen</title>
+    <meta name="description" content="Lesen Sie fiktive Gaestestimmen zum Restaurant Lindenhof."  id="meta-03-00005" />
+    <link rel="preconnect" href="https://fonts.googleapis.com"  id="link-03-00006" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin  id="link-03-00007" />
+    <link href="https://fonts.googleapis.com/css2?family=Bree+Serif&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet"  id="link-03-00008" />
+    <link rel="stylesheet" href="style.css"  id="link-03-00009" />
+  </head>
+  <body class="subpage" id="subpage-03-00010">
+    <header class="topbar" id="topbar-03-00011">
+      <div class="container topbar-inner" id="container-03-00012">
+        <a class="logo" href="index.html" id="logo-03-00013">Restaurant Lindenhof</a>
+        <nav class="nav" aria-label="Main" id="nav-03-00014">
+          <a href="index.html" data-i18n="nav_home" id="a-03-00015">Startseite</a>
+          <a href="menu.html" data-i18n="nav_menu" id="a-03-00016">Speisekarte</a>
+          <a href="about.html" data-i18n="nav_about" id="a-03-00017">Ueber uns</a>
+          <a class="active" href="reviews.html" data-i18n="nav_reviews" id="active-03-00018">Bewertungen</a>
+          <a href="contact.html" data-i18n="nav_contact" id="a-03-00019">Kontakt</a>
+        </nav>
+        <div class="lang-switch" aria-label="Language switch" id="lang-switch-03-00020">
+          <button data-lang="en" id="button-03-00021">EN</button>
+          <button data-lang="de" class="active" id="active-03-00022">DE</button>
+        </div>
+        <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu-03-00028" id="menu-toggle-03-00023">
+          <span class="menu-toggle-lines" id="menu-toggle-lines-03-00024"><span id="span-03-00025"></span><span id="span-03-00026"></span><span id="span-03-00027"></span></span>
+        </button>
+      </div>
+    </header>
+
+    <div id="mobile-menu-03-00028" class="mobile-overlay" aria-hidden="true">
+      <div class="mobile-panel" id="mobile-panel-03-00029">
+        <nav class="mobile-nav" aria-label="Mobile main" id="mobile-nav-03-00030">
+          <a href="index.html" data-i18n="nav_home" id="a-03-00031">Startseite</a>
+          <a href="menu.html" data-i18n="nav_menu" id="a-03-00032">Speisekarte</a>
+          <a href="about.html" data-i18n="nav_about" id="a-03-00033">Ueber uns</a>
+          <a class="active" href="reviews.html" data-i18n="nav_reviews" id="active-03-00034">Bewertungen</a>
+          <a href="contact.html" data-i18n="nav_contact" id="a-03-00035">Kontakt</a>
+        </nav>
+        <div class="lang-switch mobile-lang" aria-label="Mobile language switch" id="lang-switch-03-00036">
+          <button data-lang="en" id="button-03-00037">EN</button>
+          <button data-lang="de" class="active" id="active-03-00038">DE</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container section" id="container-03-00039">
+      <h1 data-i18n="reviews_title" id="h1-03-00040">Gaestebewertungen</h1>
+      <p class="overall-rating" data-i18n="reviews_overall_value" id="overall-rating-03-00041">4,3 von 5 Sternen</p>
+      <div class="stars" style="--rating: 4.3" aria-label="4.3 out of 5 stars" id="stars-03-00042"></div>
+      <p class="notice" data-i18n="reviews_note" id="notice-03-00043">Bewertungen werden als oeffentliche Feedback-Beispiele gezeigt.</p>
+
+      <div class="grid grid-3" style="margin-top: 1rem;" id="grid-03-00044">
+        <article class="card review" id="card-03-00045">
+          <p class="review-value" id="review-value-03-00046">5/5</p>
+          <div class="stars" style="--rating: 5" aria-label="5 out of 5 stars" id="stars-03-00047"></div>
+          <p class="quote" data-i18n="review_1_quote" id="quote-03-00048">'Ueberraschend gute Auswahl an Fassbieren, fast die beste in der Stadt. Lecker und gemuetlich.'</p>
+          <p class="quote-author" id="quote-author-03-00049">- Anna K.</p>
+        </article>
+
+        <article class="card review" id="card-03-00050">
+          <p class="review-value" id="review-value-03-00051">5/5</p>
+          <div class="stars" style="--rating: 5" aria-label="5 out of 5 stars" id="stars-03-00052"></div>
+          <p class="quote" data-i18n="review_2_quote" id="quote-03-00053">'Schoenes Restaurant. Nicht billig, aber fair fuer die Qualitaet. Personal unterstuetzt auch Englisch.'</p>
+          <p class="quote-author" id="quote-author-03-00054">- Daniel M.</p>
+        </article>
+
+        <article class="card review" id="card-03-00055">
+          <p class="review-value" id="review-value-03-00056">4/5</p>
+          <div class="stars" style="--rating: 4" aria-label="4 out of 5 stars" id="stars-03-00057"></div>
+          <p class="quote" data-i18n="review_3_quote" id="quote-03-00058">'Interessante Kueche mit guter Auswahl, nicht nur Kartoffelgerichte.'</p>
+          <p class="quote-author" id="quote-author-03-00059">- Sofia L.</p>
+        </article>
+      </div>
+    </main>
+
+    <footer class="footer" id="footer-03-00060">
+      <div class="container" id="container-03-00061">
+        <p data-i18n="footer_note" id="p-03-00062">Demo-Informationen fuer ein fiktives deutsches Restaurant.</p>
+        <p class="footer-links" id="footer-links-03-00063"><a href="impressum.html" id="a-03-00064">Impressum</a> <span aria-hidden="true" id="span-03-00065">|</span> <a href="datenschutz.html" id="a-03-00066">Datenschutz</a></p>
+        <p id="p-03-00067">&copy; <span id="year-03-00068"></span> Restaurant Lindenhof. <span data-i18n="footer_rights" id="span-03-00069">Alle Rechte vorbehalten.</span></p>
+      </div>
+    </footer>
+
+    <script src="app.js" id="script-03-00070"></script>
+  </body>
+</html>
